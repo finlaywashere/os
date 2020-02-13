@@ -29,7 +29,8 @@ LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
 KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
-kernel/string.o
+kernel/string.o \
+kernel/mm.o
  
 OBJS=\
 $(KERNEL_OBJS) \

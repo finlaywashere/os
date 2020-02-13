@@ -4,10 +4,20 @@
 #include "utils.h"
 #include "multiboot.h"
 #include "kernel/string.h"
+#include "kernel/pmm.h"
+
+void panic(char* message){
+	terminal_writestring(message);
+	while(1){}
+}
 
 void kernel_main(multiboot_info_t* mbd, unsigned int magic){
 	terminal_initialize();
-	char *buffer[32];
-	itoa(magic,buffer,16);
-	terminal_writestring(buffer);
+	if(magic != 0x2BADB002){
+		panic("Wrong magic!");
+	}
+	initPMM(mbd);
+	char* bootloaderName = (void*)mbd->boot_loader_name;
+	terminal_writestring("Successfully booted with ");
+	terminal_writestring(bootloaderName);
 }
