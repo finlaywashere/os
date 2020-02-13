@@ -22,6 +22,9 @@ global _start:function (_start.end-_start)
 _start:
 	mov esp, stack_top ; Sets esp to the stack top which grows downwards
 	
+	push eax ; Push the multiboot header
+	push ebx ; Push the multiboot magic
+	
 	extern kernel_main
 	call kernel_main
 	

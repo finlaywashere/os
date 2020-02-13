@@ -2,8 +2,12 @@
 
 #include "arch/x86/tty.h"
 #include "utils.h"
+#include "multiboot.h"
+#include "kernel/string.h"
 
-void kernel_main(void){
+void kernel_main(multiboot_info_t* mbd, unsigned int magic){
 	terminal_initialize();
-	terminal_writestring("Hello world!");
+	char *buffer[32];
+	itoa(magic,buffer,16);
+	terminal_writestring(buffer);
 }
