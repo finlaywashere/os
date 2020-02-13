@@ -11,13 +11,16 @@ void panic(char* message){
 	while(1){}
 }
 
+extern uint64_t *_kernel_end;
+
 void kernel_main(multiboot_info_t* mbd, unsigned int magic){
 	terminal_initialize();
 	if(magic != 0x2BADB002){
 		panic("Wrong magic!");
 	}
-	initPMM(mbd);
 	char* bootloaderName = (void*)mbd->boot_loader_name;
-	terminal_writestring("Successfully booted with ");
-	terminal_writestring(bootloaderName);
+        terminal_writestring("Successfully booted with ");
+        terminal_writestring(bootloaderName);
+
+	initPMM(mbd);
 }

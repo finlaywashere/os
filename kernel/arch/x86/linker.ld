@@ -17,5 +17,5 @@ SECTIONS{
 		*(COMMON)
 		*(.bss)
 	}
-	end = .;
+	_kernel_end = .;
 }
