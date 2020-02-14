@@ -43,7 +43,7 @@ void initPMM(multiboot_info_t* mbd){
 		entry = (multiboot_memory_map_t*) ((unsigned int) entry + entry->size + sizeof(entry->size));
 	}
 }
-uint64_t allocBlock(uint64_t _size){
+uint64_t allocPBlock(uint64_t _size){
 	uint64_t size = _size/(1024*MEM_BLOCK_SIZE) + 1;
 	uint32_t i = 0;
 	while(true){
@@ -64,7 +64,7 @@ uint64_t allocBlock(uint64_t _size){
 		i++;
 	}
 }
-void freeBlock(uint64_t addr, uint64_t _size){
+void freePBlock(uint64_t addr, uint64_t _size){
 	uint64_t size = ((uint64_t) _size)/(1024*MEM_BLOCK_SIZE) + 1;
         uint32_t i = 0;
         while(true){

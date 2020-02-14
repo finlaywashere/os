@@ -1,7 +1,6 @@
 #include "utils.h"
 
-#define IO_PORT_BASE 0x1F0
-#define IO_CONTROL_BASE 0x3F6
-
-void outb(u16int port, u8int value);
-u8int inb(u16int port);
+void outb(uint16_t port, uint8_t value);
+uint8_t inb(uint16_t port);
+void outw(uint16_t port, uint16_t value);
+uint16_t inw(uint16_t port);
