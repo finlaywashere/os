@@ -1,4 +1,5 @@
 #include "kernel/string.h"
+#include "kernel/pmm.h"
 
 // inline function to swap two numbers
 inline void swap(char *x, char *y) {
@@ -18,8 +19,6 @@ int abs(int i){
 	else
 		return -i;
 }
-
-// Iterative function to implement itoa() function in C
 char* itoa(int value, char* buffer, int base){
 	// invalid input
 	if (base < 2 || base > 32)
@@ -56,3 +55,4 @@ char* itoa(int value, char* buffer, int base){
 	// reverse the string and return it
 	return reverse(buffer, 0, i - 1);
 }
+

@@ -24,6 +24,7 @@ void kernel_main(multiboot_info_t* mbd, unsigned int magic){
 	char* bootloaderName = (void*)mbd->boot_loader_name;
         terminal_writestring("Successfully booted with ");
         terminal_writestring(bootloaderName);
+	terminal_writestring("\n");
 
 	initPMM(mbd);
 	ataSetup();

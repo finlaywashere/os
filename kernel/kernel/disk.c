@@ -23,6 +23,8 @@ uint16_t* readDiskData(uint32_t lba, unsigned char count, uint32_t slavebit){
                         inb(IO_PORT_BASE+7);
 	for(int i = 0; i < 256; i++){
 		data[i] = inw(IO_PORT_BASE);
+		for(int i1 = 0; i1 < 4; i1++)
+                        inb(IO_PORT_BASE+7);
 	}
 	return data;
 }
