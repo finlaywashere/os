@@ -20,3 +20,4 @@ struct FAT {
 typedef struct FAT fat16_t;
 
 fat16_t* setupFATDisk();
+void readFAT(fat16_t* fat);

@@ -72,4 +72,35 @@ fat16_t* setupFATDisk(){
 	return fs;
 }
 
-
+void readFAT(fat16_t* fs){
+	uint32_t root_dir_sectors = ((fs->numDirs * 32) + (fs->bytesPerSector - 1)) / fs->bytesPerSector;
+	uint32_t first_data_sector = fs->reservedSectors + (fs->numFATs * fs->sectorsPerFAT) + root_dir_sectors;
+	uint32_t first_root_dir_sector = first_data_sector - root_dir_sectors;
+	uint16_t* data = readDiskData(first_root_dir_sector, 256, 0);
+	uint8_t* byteData = (uint8_t* ) malloc(512);
+	int i2 = first_root_dir_sector;
+	while(true){
+        uint16_t* data = readDiskData(i2++, 256, 0);
+	for(int i = 0; i < 256; i++){
+                uint16_t d = data[i];
+                byteData[i*2+1] = d >> 8;
+                byteData[i*2] = d & 0x00ff;
+        }
+	for(int i = 0; i < 256; i+=32){
+		if(byteData[i] == 0)
+			continue;
+		//	return;
+		terminal_writestring("\nFound file!");
+		if(byteData[i+1] == 0xE5) // If entry is unused
+			continue;
+		char* name[12];
+		for(int i1 = i; i1 < i+11; i1++){
+			name[i1-i] = byteData[i1];
+			terminal_putchar(byteData[i1]);
+		}
+		name[11] = 0;
+		terminal_writestring("\n");
+		terminal_writestring(name);
+	}
+	}
+}

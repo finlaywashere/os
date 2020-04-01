@@ -48,4 +48,6 @@ void kernel_main(multiboot_info_t* mbd, unsigned int magic){
 
 	terminal_writestring("\nSectors per FAT: ");
 	terminal_writeint(fs->sectorsPerFAT,10);
+
+	readFAT(fs);
 }
