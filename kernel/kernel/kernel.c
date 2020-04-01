@@ -32,10 +32,13 @@ void kernel_main(multiboot_info_t* mbd, unsigned int magic){
 	fat16_t* fs = setupFATDisk();
 
 	terminal_writestring("\nOEM name: ");
-	terminal_writestring(fs->oem);
+	terminal_write(fs->oem,8);
 	
 	terminal_writestring("\nSectors per cluster: ");
 	terminal_writeint((uint32_t) fs->sectorsPerCluster,10);
+	
+	terminal_writestring("\nBytes per sector: ");
+	terminal_writeint((uint32_t) fs->bytesPerSector,10);
 	
 	terminal_writestring("\nStarting sector: ");
 	terminal_writeint(fs->numHiddenSectors,10);
@@ -48,6 +51,11 @@ void kernel_main(multiboot_info_t* mbd, unsigned int magic){
 
 	terminal_writestring("\nSectors per FAT: ");
 	terminal_writeint(fs->sectorsPerFAT,10);
-
-	readFAT(fs);
+	
+	terminal_writestring("\nVolume label: ");
+	terminal_write(fs->volumeLabel,11);
+	
+	terminal_writestring("\nSystem identifier: ");
+	terminal_write(fs->systemIdentifier,8);
+	
 }
