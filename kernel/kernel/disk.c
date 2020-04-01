@@ -19,11 +19,11 @@ uint16_t* readDiskData(uint32_t lba, unsigned char count, uint32_t slavebit){
 	outb(IO_PORT_BASE+4,(unsigned char) (lba >> 8));
 	outb(IO_PORT_BASE+5,(unsigned char) (lba >> 16));
 	outb(IO_PORT_BASE+7, 0x20);
-	for(int i1 = 0; i1 < 4; i1++)
+	for(int i1 = 0; i1 < 500; i1++)
                         inb(IO_PORT_BASE+7);
 	for(int i = 0; i < 256; i++){
 		data[i] = inw(IO_PORT_BASE);
-		for(int i1 = 0; i1 < 4; i1++)
+		for(int i1 = 0; i1 < 500; i1++)
                         inb(IO_PORT_BASE+7);
 	}
 	return data;
@@ -37,7 +37,7 @@ void writeDiskData(uint32_t lba, unsigned char count, uint32_t slavebit, uint16_
         outb(IO_PORT_BASE+7, 0x30);
         for(int i = 0; i < 256; i++){
 		outw(IO_PORT_BASE,data[i]);
-		for(int i1 = 0; i1 < 4; i1++)
+		for(int i1 = 0; i1 < 500; i1++)
 			inb(IO_PORT_BASE+7);
 	}
 }

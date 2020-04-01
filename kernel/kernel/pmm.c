@@ -59,6 +59,9 @@ uint64_t allocPBlock(uint64_t _size){
 			}
 			if(!found)
 				continue;
+			for(int i1 = i; i1 < size; i1++){
+				memoryMap[i1] = 1;
+			}
 			return block;
 		}
 		i++;

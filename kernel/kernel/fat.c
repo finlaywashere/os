@@ -13,31 +13,23 @@ void setupFATDisk(){
 		byteData[i*2] = d & 0x00ff;
 	}
 	
-	char* oem = (char* )allocPBlock(8);
 	terminal_writestring("OEM: ");
 	for(int i = 0; i < 8; i++){
-		char* data = byteData[i+3];
-		oem[i] = data;
-		terminal_putchar(oem[i]);
+		char* data2 = byteData[i+3];
+		terminal_putchar(data2);
 	}
 	
-	uint32_t bytesPerSector = (uint32_t)(((uint16_t)byteData[11]) << 8) | (0x00ff & byteData[12]);
+	uint32_t bytesPerSector = (uint32_t)(((uint16_t)byteData[12]) << 8) | (0x00ff & byteData[11]);
 	char* buffer = (char* ) allocPBlock(1024);
-	for(int i = 0; i < 1024; i++){
-                buffer[i] = 0;
-        }
 	
 	buffer = itoa(bytesPerSector,buffer,10);
 	terminal_writestring("\nBytes per sector: ");
-	terminal_writestring((uint8_t)(bytesPerSector+48));
-	
-	for(int i = 0; i < 1024; i++){
-		buffer[i] = 0;
-	}
+	terminal_writestring(buffer);
 	
 	uint8_t numFATS = byteData[16];
+	buffer = itoa(numFATS,buffer,10);
 	terminal_writestring("\nNum fats: ");
-	terminal_putchar((uint8_t) (numFATS+48));	
+	terminal_writestring(buffer);	
 	
 	uint32_t numDirectories = (uint32_t)(((uint16_t)byteData[17]) << 8) | (0x00ff & byteData[18]);
 	buffer = itoa(numDirectories,buffer,10);
