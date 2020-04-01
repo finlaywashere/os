@@ -2,6 +2,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "arch/x86/tty.h"
+#include "kernel/string.h"
+#include "kernel/pmm.h"
 
 static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
 	return fg | bg << 4;
@@ -72,4 +74,10 @@ void terminal_write(const char* data, size_t size) {
  
 void terminal_writestring(const char* data) {
 	terminal_write(data, strlen(data));
+}
+void terminal_writeint(uint32_t integer, int base) {
+	char* buffer = (char* ) malloc(32);
+	buffer = itoa(integer,buffer,base);
+	terminal_writestring(buffer);
+	free(&buffer,32);
 }

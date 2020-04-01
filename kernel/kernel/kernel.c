@@ -25,8 +25,27 @@ void kernel_main(multiboot_info_t* mbd, unsigned int magic){
         terminal_writestring("Successfully booted with ");
         terminal_writestring(bootloaderName);
 	terminal_writestring("\n");
-
+	
 	initPMM(mbd);
 	ataSetup();
-	setupFATDisk();
+	
+	fat16_t* fs = setupFATDisk();
+
+	terminal_writestring("\nOEM name: ");
+	terminal_writestring(fs->oem);
+	
+	terminal_writestring("\nSectors per cluster: ");
+	terminal_writeint((uint32_t) fs->sectorsPerCluster,10);
+	
+	terminal_writestring("\nStarting sector: ");
+	terminal_writeint(fs->numHiddenSectors,10);
+	
+	terminal_writestring("\nNumer of FATs: ");
+	terminal_writeint(fs->numFATs,10);
+
+	terminal_writestring("\nMedia descriptor: 0x");
+	terminal_writeint(fs->mediaDescriptor,16);
+
+	terminal_writestring("\nSectors per FAT: ");
+	terminal_writeint(fs->sectorsPerFAT,10);
 }

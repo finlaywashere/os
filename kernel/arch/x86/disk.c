@@ -1,4 +1,4 @@
-#include "kernel/disk.h"
+#include "arch/x86/disk.h"
 
 #include "arch/x86/io.h"
 #include "kernel/pmm.h"
@@ -12,7 +12,7 @@ void ataSetup(){
 }
 
 uint16_t* readDiskData(uint32_t lba, unsigned char count, uint32_t slavebit){
-        uint16_t *data = (uint16_t* ) allocPBlock(4096);
+	uint16_t *data = (uint16_t* ) malloc(4096);
 	outb(IO_PORT_BASE+6, 0xE0 | (slavebit << 4) | ((lba >> 24) & 0x0F));
 	outb(IO_PORT_BASE+2, count);
 	outb(IO_PORT_BASE+3,(unsigned char) lba);

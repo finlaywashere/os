@@ -2,28 +2,52 @@
 
 #include "multiboot.h"
 #include "utils.h"
+#include "arch/x86/tty.h"
 
-#define MEM_BLOCK_SIZE 4
+#define MEM_BLOCK_SIZE 8192
 
 extern uint64_t _kernel_end;
 uint64_t kernel_end;
 
-uint64_t* memoryMap;
+struct block {
+	uint64_t addr;
+	uint64_t size;
+};
+
+struct block *free_addrs;
+uint64_t free_addrs_size;
+uint64_t last_index = 0;
+
+uint64_t latest_addr = 0x100000;
+
+void* malloc(uint64_t _size) {
+	uint64_t size = _size/MEM_BLOCK_SIZE+1;
+	for (int i = 0; i < free_addrs_size; i++) {
+		if (free_addrs[i].size >= size)
+			return (void*)free_addrs[i].addr;
+	}
+	
+	// no free blocks were found in the list, default to bump allocator
+	void* ret = (void*)latest_addr;
+	latest_addr += size;
+	return ret;
+}
+void free(uint64_t addr, uint64_t _size){
+	uint64_t size = (_size/MEM_BLOCK_SIZE+1)*MEM_BLOCK_SIZE;
+	//TODO: do freeing stuff
+}
 
 void initPMM(multiboot_info_t* mbd){
 	kernel_end = _kernel_end;
+	free_addrs = kernel_end;
 	uint32_t mem_size = mbd->mem_upper;
 	uint32_t blocks = mem_size / MEM_BLOCK_SIZE;
-	memoryMap = (char *)kernel_end;
+	free_addrs_size = blocks;
 	
-	for(uint32_t i = 0; i < blocks; i++){
-		memoryMap[i] = 0;
-	}
-	
-	kernel_end += blocks * sizeof(uint64_t);
+	kernel_end += blocks * sizeof(struct block);
 	
 	multiboot_memory_map_t* entry = mbd->mmap_addr;
-	uint32_t workingIndex = 0;
+	int workingI = 0;
 	while(entry < mbd->mmap_addr + mbd->mmap_length){
 		uint32_t type = entry->type;
 		if(type == MULTIBOOT_MEMORY_AVAILABLE){
@@ -35,61 +59,11 @@ void initPMM(multiboot_info_t* mbd){
 			uint64_t len = (((uint64_t) len_high) << 32) | ((uint64_t) len_low);
 			uint64_t addr = (((uint64_t) addr_high) << 32) | ((uint64_t) addr_low);
 			
-			for(uint64_t l = 0; l < len; l+=MEM_BLOCK_SIZE){
-				memoryMap[workingIndex] = addr + l*1024;
-				workingIndex++;
+			for(uint64_t l = 0; l < len-MEM_BLOCK_SIZE; l+=MEM_BLOCK_SIZE){
+				free_addrs[workingI].addr = addr+l;
+				free_addrs[workingI++].size = MEM_BLOCK_SIZE;
 			}
 		}
 		entry = (multiboot_memory_map_t*) ((unsigned int) entry + entry->size + sizeof(entry->size));
 	}
-}
-uint64_t allocPBlock(uint64_t _size){
-	uint64_t size = _size/(1024*MEM_BLOCK_SIZE) + 1;
-	uint32_t i = 0;
-	while(true){
-		uint64_t block = memoryMap[i];
-		if(!(block < kernel_end)){
-			uint32_t found = 1;
-			for(uint32_t i2 = 0; i2 < size; i2++){
-				if(memoryMap[i] < kernel_end){
-					found = 0;
-					break;
-				}
-				i++;
-			}
-			if(!found)
-				continue;
-			for(int i1 = i; i1 < size; i1++){
-				memoryMap[i1] = 1;
-			}
-			return block;
-		}
-		i++;
-	}
-}
-void freePBlock(uint64_t addr, uint64_t _size){
-	uint64_t size = ((uint64_t) _size)/(1024*MEM_BLOCK_SIZE) + 1;
-        uint32_t i = 0;
-        while(true){
-                uint64_t block = memoryMap[i];
-                if(!(block < kernel_end)){
-                        uint32_t found = 1;
-                        for(uint32_t i2 = 0; i2 < size; i2++){
-                                if(memoryMap[i] > kernel_end){
-                                        found = 0;
-                                        break;
-                                }
-                                i++;
-                        }
-                        if(!found)
-                                continue;
-			uint32_t finalIndex = i + size;
-                        for(uint32_t startIndex = i ;i < finalIndex; i++){
-				memoryMap[i] = addr+(i-startIndex)*1024*MEM_BLOCK_SIZE;
-			}
-			return;
-                }
-                i++;
-        }
-
 }
