@@ -5,6 +5,8 @@ echfs_t init_echfs(){
 	echfs_bs_t* bs = data;
 	uint64_t* allocTable = (uint64_t* ) malloc(sizeof(uint64_t)*bs->blockCount);
 	
+	terminal_writeint(bs->blockCount,10);
+		
 	echfs_t* fs = (echfs_t* ) malloc(sizeof(echfs_t));
 
 	fs->bs = bs;
@@ -18,7 +20,7 @@ echfs_t init_echfs(){
 	for(uint64_t i = 0; i < sectorCount; i++){
 		uint64_t* entries = readDiskData(16+i*bs->bytesPerBlock,512,0);
 		for(int i1 = 0; i1 < entriesPerSector; i1++){
-			if(i*entriesPerSector+i1 > bs->blockCount){
+			if(i*entriesPerSector+i1 > bs->blockCount || entries[i1] == 0xFFFFFFFFFFFFFFFF){
 				break;
 			}
 			allocTable[i*entriesPerSector+i1] = entries[i1];
@@ -26,12 +28,11 @@ echfs_t init_echfs(){
 	}
 	uint64_t rootStart = 16*bs->bytesPerBlock+(bs->blockCount*sizeof(uint64_t));
 	uint8_t *data2 = readDiskData(rootStart,bs->rootLength*bs->bytesPerBlock,0);
-	terminal_writeint(data2[1],16);
 	echfs_dir_entry_t *dirs = data2;
 	for(uint64_t i = 0; i < bs->rootLength; i++){
 		echfs_dir_entry_t dir = dirs[i];
-		terminal_writestring("\nRoot addr: ");
-		terminal_writeint(rootStart,10);
+		terminal_writestring("\nBlock count: ");
+		terminal_writeint(bs->blockCount,10);
 		terminal_writestring("\nDirectory id: ");
 		terminal_writeint(dir.directoryID,16);
 		terminal_writestring("\nDirectory name: ");

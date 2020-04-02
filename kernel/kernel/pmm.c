@@ -20,12 +20,15 @@ uint64_t last_index = 0;
 
 uint64_t latest_addr = 0x100000;
 
-void* malloc(uint64_t _size) {
-	uint64_t size = _size/MEM_BLOCK_SIZE+1;
+void* malloc(uint64_t size) {
 	for (int i = 0; i < free_addrs_size; i++) {
 		if (free_addrs[i].size >= size){
-			free_addrs[i].size = 0;
-			return (void*)free_addrs[i].addr;
+			uint64_t addr = free_addrs[i].addr;
+			
+			free_addrs[i].addr += size;
+			free_addrs[i].size -= size;
+			
+			return (void*)addr;
 		}
 	}
 	
@@ -60,11 +63,8 @@ void initPMM(multiboot_info_t* mbd){
 			
 			uint64_t len = (((uint64_t) len_high) << 32) | ((uint64_t) len_low);
 			uint64_t addr = (((uint64_t) addr_high) << 32) | ((uint64_t) addr_low);
-			
-			for(uint64_t l = 0; l < len-MEM_BLOCK_SIZE; l+=MEM_BLOCK_SIZE){
-				free_addrs[workingI].addr = addr+l;
-				free_addrs[workingI++].size = MEM_BLOCK_SIZE;
-			}
+			free_addrs[workingI].addr = addr;
+			free_addrs[workingI++].size = len;
 		}
 		entry = (multiboot_memory_map_t*) ((unsigned int) entry + entry->size + sizeof(entry->size));
 	}
