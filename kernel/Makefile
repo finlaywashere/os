@@ -1,5 +1,5 @@
-HOST=i686-elf
-HOSTARCH=i686
+HOST=x86_64-elf
+HOSTARCH=x86_64
  
 CFLAGS?=-O2 -g
 CPPFLAGS?=
@@ -28,10 +28,7 @@ LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
  
 KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
-kernel/kernel.o \
-kernel/string.o \
-kernel/pmm.o \
-kernel/fs/echfs.o 
+kernel/kernel.o 
 
 OBJS=\
 $(KERNEL_OBJS) \
@@ -47,14 +44,14 @@ $(LIBS)
 all: os.kernel
  
 os.kernel: $(OBJS) $(ARCHDIR)/linker.ld
-	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
+	$(CC) -T $(ARCHDIR)/linker.ld -z max-page-size=0x1000 -o $@ $(CFLAGS) $(LINK_LIST)
 	grub-file --is-x86-multiboot os.kernel
  
 .c.o:
 	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
  
 .S.o:
-	$(AS) -felf32 $< -o $@
+	$(AS) -felf64 $< -o $@
  
 clean:
 	rm -f os.kernel

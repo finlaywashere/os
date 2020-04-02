@@ -2,7 +2,7 @@ SYSTEM_HEADER_PROJECTS="kernel"
 PROJECTS="kernel"
  
 export MAKE=${MAKE:-make}
-export HOST=i686-elf
+export HOST=x86_64-elf
  
 export AR=${HOST}-ar
 export AS=nasm

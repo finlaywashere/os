@@ -2,4 +2,4 @@
 set -e
 . ./iso.sh
  
-qemu-system-i386 -cdrom os.iso -hda disk.iso -boot d $@
+qemu-system-x86_64 -cdrom os.iso -hda disk.iso -boot d -no-reboot -no-shutdown $@

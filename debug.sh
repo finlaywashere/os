@@ -1,2 +1,2 @@
 #!/bin/sh
-. ./qemu.sh -d int -no-reboot -no-shutdown $@
+. ./qemu.sh -d int $@
