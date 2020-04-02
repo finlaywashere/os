@@ -5,7 +5,6 @@
 #include "multiboot.h"
 #include "kernel/string.h"
 #include "kernel/pmm.h"
-#include "kernel/fat.h"
 #include "arch/x86/isr.h"
 
 void panic(char* message){
@@ -29,33 +28,5 @@ void kernel_main(multiboot_info_t* mbd, unsigned int magic){
 	initPMM(mbd);
 	ataSetup();
 	
-	fat16_t* fs = setupFATDisk();
-
-	terminal_writestring("\nOEM name: ");
-	terminal_write(fs->oem,8);
-	
-	terminal_writestring("\nSectors per cluster: ");
-	terminal_writeint((uint32_t) fs->sectorsPerCluster,10);
-	
-	terminal_writestring("\nBytes per sector: ");
-	terminal_writeint((uint32_t) fs->bytesPerSector,10);
-	
-	terminal_writestring("\nStarting sector: ");
-	terminal_writeint(fs->numHiddenSectors,10);
-	
-	terminal_writestring("\nNumer of FATs: ");
-	terminal_writeint(fs->numFATs,10);
-
-	terminal_writestring("\nMedia descriptor: 0x");
-	terminal_writeint(fs->mediaDescriptor,16);
-
-	terminal_writestring("\nSectors per FAT: ");
-	terminal_writeint(fs->sectorsPerFAT,10);
-	
-	terminal_writestring("\nVolume label: ");
-	terminal_write(fs->volumeLabel,11);
-	
-	terminal_writestring("\nSystem identifier: ");
-	terminal_write(fs->systemIdentifier,8);
-	
+	init_echfs();	
 }

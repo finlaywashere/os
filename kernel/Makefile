@@ -31,7 +31,7 @@ $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
 kernel/string.o \
 kernel/pmm.o \
-kernel/fat.o 
+kernel/fs/echfs.o 
 
 OBJS=\
 $(KERNEL_OBJS) \

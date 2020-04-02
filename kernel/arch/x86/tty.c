@@ -75,9 +75,10 @@ void terminal_write(const char* data, size_t size) {
 void terminal_writestring(const char* data) {
 	terminal_write(data, strlen(data));
 }
+char* buffer = 0;
 void terminal_writeint(uint32_t integer, int base) {
-	char* buffer = (char* ) malloc(32);
+	if(buffer == 0)
+		buffer = (char* )malloc(32);
 	buffer = itoa(integer,buffer,base);
 	terminal_writestring(buffer);
-	free(&buffer,32);
 }

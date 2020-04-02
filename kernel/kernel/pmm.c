@@ -23,8 +23,10 @@ uint64_t latest_addr = 0x100000;
 void* malloc(uint64_t _size) {
 	uint64_t size = _size/MEM_BLOCK_SIZE+1;
 	for (int i = 0; i < free_addrs_size; i++) {
-		if (free_addrs[i].size >= size)
+		if (free_addrs[i].size >= size){
+			free_addrs[i].size = 0;
 			return (void*)free_addrs[i].addr;
+		}
 	}
 	
 	// no free blocks were found in the list, default to bump allocator
