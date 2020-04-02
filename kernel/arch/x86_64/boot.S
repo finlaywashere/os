@@ -24,7 +24,7 @@ p1_table:
 	resb 4096
 
 stack_bottom:
-resb 16384 ; 16KiB
+resb 1048576 ; 1MiB
 stack_top:
 
 section .rodata
