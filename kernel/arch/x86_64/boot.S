@@ -92,6 +92,35 @@ check_long_mode:
 .no_long_mode:
 	mov al, "2"
 	jmp error
+;global descriptor table
+gdt:
+gdt_null:
+	dq 0
+gdt_code:
+	dw 0FFFFh
+	dw 0
+
+	db 0
+	db 10011010b
+	db 11001111b
+	db 0
+gdt_data:
+	dw 0FFFFh
+	dw 0
+
+	db 0
+	db 10010010b
+	db 11001111b
+	db 0
+gdt_end:
+gdt_desc:
+	dw gdt_end - gdt - 1
+	dd gdt
+	;load gdt
+load_gdt:
+	cli  ;disable interrupts
+	lgdt [gdt_desc]  ;load GDT
+	sti  ;enable interrupts
 set_up_page_tables:
 	; map first P4 entry to P3 table
 	mov eax, p3_table
@@ -146,6 +175,8 @@ _start:
 	call check_multiboot
 	call check_cpuid
 	call check_long_mode
+
+	call load_gdt
 
 	call set_up_page_tables
 	call enable_paging
