@@ -17,7 +17,7 @@ CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude
 LDFLAGS:=$(LDFLAGS)
 LIBS:=$(LIBS) -nostdlib -lgcc
  
-ARCHDIR=arch/x86
+ARCHDIR=arch/x86_64
  
 include $(ARCHDIR)/make.config
  
@@ -28,7 +28,9 @@ LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
  
 KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
-kernel/kernel.o 
+kernel/kernel.o \
+kernel/string.o \
+kernel/pmm.o
 
 OBJS=\
 $(KERNEL_OBJS) \

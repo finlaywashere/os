@@ -8,10 +8,6 @@ long_mode_start:
 	mov fs, ax
 	mov gs, ax
 
-	mov rax, 0x2f592f412f4b2f4f
-	mov qword [0xb8000], rax
-
-
 	push rdi ; Push the multiboot header
 
 	extern kernel_main
