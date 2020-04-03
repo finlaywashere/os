@@ -4,8 +4,8 @@
 #include "kernel/pmm.h"
 #include "arch/x86_64/tty.h"
 #include "kernel/string.h"
-#include "arch/x86_64/idt.h"
 #include <stdint.h>
+#include "arch/x86_64/isr.h"
 
 void kernel_main(multiboot_info_t* mbd){
 	terminal_initialize();
@@ -13,7 +13,7 @@ void kernel_main(multiboot_info_t* mbd){
 	char* bootloaderName = (void*)mbd->boot_loader_name;
 	terminal_writestring(bootloaderName);
 	terminal_writestring("\n");
-	idt_init();
+	init_idt();
 	terminal_writestring("Successfully initialized IDT\n");
 	init_pmm(mbd);
 	void* alloc1 = pmalloc(4096);
@@ -25,8 +25,8 @@ void kernel_main(multiboot_info_t* mbd){
 	}
 	pfree(alloc1,4096);
 	pfree(alloc2,4096);
-	terminal_writestring("Successfully initialized PMM!\n");
-	int i = 5/0;
-	terminal_writeint(3,10);
-	terminal_writeint(i,10);
+	terminal_writestring("Successfully initialized PMM\n");
+	asm volatile ("int $0x3");
+	asm volatile ("int $0x4");
+
 }

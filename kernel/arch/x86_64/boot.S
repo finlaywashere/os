@@ -28,13 +28,31 @@ resb 1048576 ; 1MiB
 stack_top:
 
 section .rodata
-gdt64:
-	dq 0 ; zero entry
-.code: equ $ - gdt64
-	dq (1<<43) | (1<<44) | (1<<47) | (1<<53) ; code segment
-.pointer:
-	dw $ - gdt64 - 1
-	dq gdt64
+GDT64:                           ; Global Descriptor Table (64-bit).
+    .Null: equ $ - GDT64         ; The null descriptor.
+    dw 0xFFFF                    ; Limit (low).
+    dw 0                         ; Base (low).
+    db 0                         ; Base (middle)
+    db 0                         ; Access.
+    db 1                         ; Granularity.
+    db 0                         ; Base (high).
+    .Code: equ $ - GDT64         ; The code descriptor.
+    dw 0                         ; Limit (low).
+    dw 0                         ; Base (low).
+    db 0                         ; Base (middle)
+    db 10011010b                 ; Access (exec/read).
+    db 10101111b                 ; Granularity, 64 bits flag, limit19:16.
+    db 0                         ; Base (high).
+    .Data: equ $ - GDT64         ; The data descriptor.
+    dw 0                         ; Limit (low).
+    dw 0                         ; Base (low).
+    db 0                         ; Base (middle)
+    db 10010010b                 ; Access (read/write).
+    db 00000000b                 ; Granularity.
+    db 0                         ; Base (high).
+    .Pointer:                    ; The GDT-pointer.
+    dw $ - GDT64 - 1             ; Limit.
+    dq GDT64                     ; Base.
 
 section .text
 
@@ -92,35 +110,6 @@ check_long_mode:
 .no_long_mode:
 	mov al, "2"
 	jmp error
-;global descriptor table
-gdt:
-gdt_null:
-	dq 0
-gdt_code:
-	dw 0FFFFh
-	dw 0
-
-	db 0
-	db 10011010b
-	db 11001111b
-	db 0
-gdt_data:
-	dw 0FFFFh
-	dw 0
-
-	db 0
-	db 10010010b
-	db 11001111b
-	db 0
-gdt_end:
-gdt_desc:
-	dw gdt_end - gdt - 1
-	dd gdt
-	;load gdt
-load_gdt:
-	cli  ;disable interrupts
-	lgdt [gdt_desc]  ;load GDT
-	sti  ;enable interrupts
 set_up_page_tables:
 	; map first P4 entry to P3 table
 	mov eax, p3_table
@@ -176,13 +165,11 @@ _start:
 	call check_cpuid
 	call check_long_mode
 
-	call load_gdt
-
 	call set_up_page_tables
 	call enable_paging
 
-	lgdt [gdt64.pointer]
+	lgdt [GDT64.Pointer]
 	
 	extern long_mode_start
-	jmp gdt64.code:long_mode_start
+	jmp GDT64.Code:long_mode_start
 

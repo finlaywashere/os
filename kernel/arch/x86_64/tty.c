@@ -41,7 +41,7 @@ void scroll(size_t amount){
 void terminal_putchar(char c){
 	unsigned char uc = c;
 	if(uc == '\n'){
-		terminal_row++;
+		terminal_row = terminal_row + 1;
 		terminal_column = 0;
 		return;
 	}
