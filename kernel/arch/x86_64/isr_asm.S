@@ -3,6 +3,7 @@
 	push rcx
 	push rdx
 	push rbx
+	push rsp
 	push rbp
 	push rsi
 	push rdi
@@ -11,6 +12,7 @@
 	pop rdi
 	pop rsi
 	pop rbp
+	pop rsp
 	pop rbx
 	pop rdx
 	pop rcx
@@ -35,14 +37,14 @@ isr_common:
 
 	call isr_handler
 
-	pop rbx
-	mov ds, bx
-	mov es, bx
-	mov fs, bx
-	mov gs, bx
+	pop rax
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
 
 	popAll
-	add rsp, 8
+	add rsp, 16
 	sti
 	iretq
 %macro ISR_NOERRCODE 1
