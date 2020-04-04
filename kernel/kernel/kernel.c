@@ -6,6 +6,15 @@
 #include "kernel/string.h"
 #include <stdint.h>
 #include "arch/x86_64/isr.h"
+#include "arch/x86_64/pit.h"
+#include "kernel/paging.h"
+
+void panic(char *message){
+	asm volatile("cli");
+	terminal_writestring("PANIC: ");
+	terminal_writestring(message);
+	while(1);
+}
 
 void kernel_main(multiboot_info_t* mbd){
 	terminal_initialize();
@@ -16,17 +25,12 @@ void kernel_main(multiboot_info_t* mbd){
 	init_idt();
 	terminal_writestring("Successfully initialized IDT\n");
 	init_pmm(mbd);
-	void* alloc1 = pmalloc(4096);
-	void* alloc2 = pmalloc(4096);
-	if(alloc2-alloc1 != 0x1000){
-		terminal_setcolour(VGA_COLOUR_WHITE | VGA_COLOUR_RED << 4);
-		terminal_writestring("FATAL: PMM is broken!");
-		return;
-	}
-	pfree(alloc1,4096);
-	pfree(alloc2,4096);
 	terminal_writestring("Successfully initialized PMM\n");
-	asm volatile ("int $0x3");
-	asm volatile ("int $0x4");
-
+	init_paging();
+	terminal_writestring("Successfully initialized paging\n");
+	init_timer(60);
+	terminal_writestring("Successfully initialized PIT\n");
+	while(1){
+		// Kernel loop
+	}
 }

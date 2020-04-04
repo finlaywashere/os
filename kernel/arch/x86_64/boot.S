@@ -130,7 +130,7 @@ set_up_page_tables:
 	mov [p2_table + ecx*8], eax ; map entry
 
 	inc ecx
-	cmp ecx, 512 ; if the counter is 512 then the whole table is mapped
+	cmp ecx, 10 ; if the counter is 10 then 20MB is mapped
 	jne .map_p2_table ; else map some more
 
 	ret

@@ -45,8 +45,7 @@ char *itoa(char *buffer, size_t len, uint64_t input, int base) {
     return buffer;
 }
 void terminal_writeint(uint64_t integer, int base){
-	char* buffer = (char*) pmalloc(65);
+	char* buffer = (char*) kmalloc(65);
 	buffer = itoa(buffer,64,integer,base);
 	terminal_writestring(buffer);
-	pfree(buffer,65);
 }

@@ -30,7 +30,8 @@ KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
 kernel/string.o \
-kernel/pmm.o
+kernel/pmm.o \
+kernel/paging.o
 
 OBJS=\
 $(KERNEL_OBJS) \
