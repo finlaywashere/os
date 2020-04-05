@@ -32,7 +32,8 @@ kernel/kernel.o \
 kernel/string.o \
 kernel/pmm.o \
 kernel/paging.o \
-kernel/timer.o
+kernel/timer.o \
+kernel/fs/echfs.o
 
 OBJS=\
 $(KERNEL_OBJS) \
