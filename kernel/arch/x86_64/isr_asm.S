@@ -23,6 +23,7 @@ global load_idt
 extern idt_ptr;
 load_idt:
 	lidt [idt_ptr]
+	sti
 	ret
 extern isr_handler
 isr_common:
