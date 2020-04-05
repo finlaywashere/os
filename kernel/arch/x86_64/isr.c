@@ -10,6 +10,8 @@ void init_idt(){
 	idt_ptr.limit = (sizeof(idt_entry_t) * 256) - 1;
 	idt_ptr.base = (uint64_t) &idt;
 
+	uint8_t masterPICMask = inb(0xA1);
+	uint8_t slavePICMask = inb(0x21);
 	// Remap the irq table
 	outb(0x20,0x11);
 	outb(0xA0,0x11);
@@ -19,8 +21,8 @@ void init_idt(){
 	outb(0xA1,0x02);
 	outb(0x21,0x01);
 	outb(0xA1,0x01);
-	outb(0x21,0x0);
-	outb(0xA1,0x0);
+	outb(0x21,masterPICMask);
+	outb(0xA1,slavePICMask);
 
 	set_idt(0,(uint64_t) isr0, 0x08, 0x8E);
 	set_idt(1,(uint64_t) isr1, 0x08, 0x8E);
