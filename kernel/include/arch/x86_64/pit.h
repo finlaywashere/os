@@ -1,3 +1,5 @@
 #include <stdint.h>
 
-void init_timer(uint32_t frequency);
+#define FREQUENCY 100
+
+void init_timer();

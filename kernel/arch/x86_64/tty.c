@@ -48,9 +48,9 @@ void terminal_putchar(char c) {
 	if (terminal_column == VGA_WIDTH) {
 		terminal_column = 0;
 		terminal_row++;
-		if (terminal_row == VGA_HEIGHT) {
-			scroll(1);
-		}
+	}
+	if (terminal_row == VGA_HEIGHT) {
+		scroll(1);
 	}
 	terminal_putentryat(uc, terminal_colour, terminal_column, terminal_row);
 	terminal_column++;

@@ -28,8 +28,7 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("Successfully initialized PMM\n");
 	init_paging();
 	terminal_writestring("Successfully initialized paging\n");
-	init_timer(1000);
-	terminal_writestring("Successfully initialized PIT\n");
+	init_timer();
 
 	while(1){
 		// Kernel loop

@@ -19,11 +19,20 @@
 	pop rax
 %endmacro
 
+global enableInterrupts
+enableInterrupts:
+	sti
+	ret
+global disableInterrupts
+disableInterrupts:
+	cli
+	ret
+
 global load_idt
 extern idt_ptr;
 load_idt:
 	lidt [idt_ptr]
-	sti
+	call enableInterrupts
 	ret
 extern isr_handler
 isr_common:
@@ -46,12 +55,12 @@ isr_common:
 
 	popAll
 	add rsp, 16
-	sti
+	call enableInterrupts
 	iretq
 %macro ISR_NOERRCODE 1
 global isr%1
 isr%1:
-	cli
+	call disableInterrupts
 	push byte 0
 	push byte %1
 	jmp isr_common
@@ -59,7 +68,7 @@ isr%1:
 %macro ISR_ERRCODE 1
 global isr%1
 isr%1:
-	cli
+	call disableInterrupts
 	push byte %1
 	jmp isr_common
 %endmacro
