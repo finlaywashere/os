@@ -46,6 +46,11 @@ void terminal_putchar(char c) {
 		terminal_column = 0;
 		return;
 	}
+	if(uc == 0x8){
+		terminal_column--;
+		terminal_buffer[terminal_row*VGA_WIDTH+terminal_column] = 0x0;
+		return;
+	}
 	if (terminal_column == VGA_WIDTH) {
 		terminal_column = 0;
 		terminal_row++;

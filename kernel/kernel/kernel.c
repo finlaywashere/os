@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include "arch/x86_64/isr.h"
 #include "kernel/paging.h"
-#include "arch/x86_64/keyboard.h"
+//#include "arch/x86_64/keyboard.h"
 #include "kernel/timer.h"
 
 void panic(char *message){
