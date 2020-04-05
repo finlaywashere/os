@@ -31,7 +31,8 @@ $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
 kernel/string.o \
 kernel/pmm.o \
-kernel/paging.o
+kernel/paging.o \
+kernel/timer.o
 
 OBJS=\
 $(KERNEL_OBJS) \

@@ -20,13 +20,13 @@ unsigned iabs(int input) {
         return (unsigned)input;
     return (4294967295 - (unsigned)input)+1U;
 }
-char *itoa_internal(char *buffer, size_t len, uint64_t input, int base) {
+char *itoa_internal(char *buffer, uint64_t len, uint64_t input, uint64_t base) {
     static const char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     char *pos = buffer;
     if (input >= base)
         pos = itoa_internal(buffer, len, input/base, base);
 
-    if (pos-buffer < len-1)
+    if ((uint64_t)(pos-buffer) < len-1)
         *pos++ = digits[input % base];
     return pos;
 }
@@ -37,10 +37,7 @@ char *itoa(char *buffer, size_t len, uint64_t input, int base) {
     if (base < 2 || base > 36 || len < 1)
         return 0;
 
-    if (input < 0)
-        *pos++ = '-';
-
-    pos = itoa_internal(pos, len, iabs(input), base);
+    pos = itoa_internal(pos, (uint64_t) len, iabs(input), base);
     *pos = '\0';
     return buffer;
 }

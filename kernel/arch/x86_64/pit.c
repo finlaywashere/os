@@ -1,21 +1,15 @@
-#include <arch/x86_64/pit.h>
+#include "../../include/arch/x86_64/pit.h"
+
 #include <arch/x86_64/tty.h>
 #include <kernel/string.h>
 #include <arch/x86_64/io.h>
 #include <arch/x86_64/isr.h>
 
-uint64_t tick = 0;
+uint64_t ticks = 0;
 void timer_callback(registers_t regs) {
-	tick++;
-	if (!(tick % (FREQUENCY/2))) {
-		terminal_writestring("Seconds since bootup: ");
-		terminal_writeint(tick/FREQUENCY, 10);
-		terminal_writestring(".");
-		terminal_writeint(tick%FREQUENCY,10);
-		terminal_writestring("\n");
-	}
+	ticks++;
 }
-void init_timer() {
+void init_pit() {
 	register_interrupt_handler(IRQ0, &timer_callback);
 
 	int divisor = 1193182 / FREQUENCY;

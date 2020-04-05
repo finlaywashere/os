@@ -1,3 +1,4 @@
+#include <arch/x86_64/pit.h>
 #include "kernel/kernel.h"
 
 #include "multiboot.h"
@@ -6,8 +7,9 @@
 #include "kernel/string.h"
 #include <stdint.h>
 #include "arch/x86_64/isr.h"
-#include "arch/x86_64/pit.h"
 #include "kernel/paging.h"
+#include "arch/x86_64/keyboard.h"
+#include "kernel/timer.h"
 
 void panic(char *message){
 	asm volatile("cli");
@@ -19,7 +21,7 @@ void panic(char *message){
 void kernel_main(multiboot_info_t* mbd){
 	terminal_initialize();
 	terminal_writestring("Successfully booted with ");
-	char* bootloaderName = (void*)mbd->boot_loader_name;
+	char* bootloaderName = (void*) (uint64_t) mbd->boot_loader_name;
 	terminal_writestring(bootloaderName);
 	terminal_writestring("\n");
 	init_idt();
@@ -29,6 +31,9 @@ void kernel_main(multiboot_info_t* mbd){
 	init_paging();
 	terminal_writestring("Successfully initialized paging\n");
 	init_timer();
+	terminal_writestring("Successfully initialized PIT\n");
+	init_keyboard();
+	terminal_writestring("Successfully initialized keyboard\n");
 
 	while(1){
 		// Kernel loop

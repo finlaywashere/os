@@ -26,7 +26,7 @@ void terminal_setcolour(uint8_t colour) {
 }
 void terminal_putentryat(unsigned char c, uint8_t colour, size_t x, size_t y) {
 	const size_t index = y * VGA_WIDTH + x;
-	terminal_buffer[index] = ((uint16_t) c) | terminal_colour << 8;
+	terminal_buffer[index] = ((uint16_t) c) | colour << 8;
 }
 void scroll(size_t amount) {
 	for (size_t y = amount; y < VGA_HEIGHT; y++) {
@@ -34,6 +34,7 @@ void scroll(size_t amount) {
 			const size_t index = y * VGA_WIDTH + x;
 			const size_t newIndex = (y - amount) * VGA_WIDTH + x;
 			terminal_buffer[newIndex] = terminal_buffer[index];
+			terminal_buffer[index] = 0;
 		}
 	}
 	terminal_row -= amount;
