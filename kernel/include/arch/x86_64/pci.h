@@ -26,4 +26,11 @@ struct pci_bus{
 };
 typedef struct pci_bus pci_bus_t;
 
+struct pci_device_result{
+	pci_device_function_t* devices;
+	uint8_t count;
+};
+typedef struct pci_device_result pci_device_result_t;
+
 void init_pci();
+pci_device_result_t* findPCIDevicesByClass(uint8_t class);

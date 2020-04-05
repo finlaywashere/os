@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 typedef enum{
 	FIS_TYPE_REG_H2D	= 0x27,	// Register FIS - host to device
 	FIS_TYPE_REG_D2H	= 0x34,	// Register FIS - device to host
@@ -149,3 +151,4 @@ typedef struct tagFIS_DMA_SETUP{
 
 } FIS_DMA_SETUP;
 
+void init_ahci();

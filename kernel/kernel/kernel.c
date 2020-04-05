@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include "arch/x86_64/isr.h"
 #include "kernel/paging.h"
-//#include "arch/x86_64/keyboard.h"
+#include "arch/x86_64/ahci.h"
 #include "kernel/timer.h"
 
 void panic(char *message){
@@ -36,6 +36,8 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("Successfully initialized keyboard\n");
 	init_pci();
 	terminal_writestring("Successfully initialized PCI\n");
+	init_ahci();
+	terminal_writestring("Successfully initialized AHCI\n");
 	while(1){
 		// Kernel loop
 	}
