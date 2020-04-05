@@ -1,5 +1,6 @@
 #include <arch/x86_64/pci.h>
 #include <arch/x86_64/io.h>
+#include <kernel/string.h>
 
 pci_bus_t *busses;
 
@@ -60,6 +61,7 @@ void init_pci_bus(uint8_t bus){
 		if(function == 0x0)
 			continue;
 		pci_device_t *device = kmalloc(sizeof(pci_device_t));
+		memset(device,0,sizeof(pci_device_t));
 		device->functions[0] = function;
 		if(function->headerType & 0b01111111){
 			uint8_t secondaryBusNumber = (uint8_t)(pciConfigReadWord(bus, i, 0, 0x18) >> 8);
@@ -78,14 +80,15 @@ void init_pci_bus(uint8_t bus){
 
 void init_pci(){
 	busses = kmalloc(sizeof(pci_bus_t)*256);
+	memset(busses, 0, sizeof(pci_bus_t)*256);
 	init_pci_bus(0);
 	for(int i = 0; i < 10; i++){
 		pci_device_t *device = busses[0].devices[i];
-		if(device == 0x0)
+		if(device == 0x0 || device->functions[0] == 0x0)
 			continue;
-		pci_device_function_t *function = device->functions[0];
+		pci_device_function_t function = *device->functions[0];
 		terminal_writestring("Device id: 0x");
-		terminal_writestring(function->deviceID,16);
+		terminal_writeint(function.deviceID,16);
 		terminal_writestring("\n");
 	}
 }
