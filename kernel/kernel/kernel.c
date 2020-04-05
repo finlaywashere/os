@@ -34,7 +34,8 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("Successfully initialized PIT\n");
 	init_keyboard();
 	terminal_writestring("Successfully initialized keyboard\n");
-
+	init_pci();
+	terminal_writestring("Successfully initialized PCI\n");
 	while(1){
 		// Kernel loop
 	}
