@@ -10,8 +10,10 @@ void init_idt() {
 	idt_ptr.limit = (sizeof(idt_entry_t) * 256) - 1;
 	idt_ptr.base = (uint64_t) &idt;
 
-	uint8_t masterPICMask = inb(0xA1);
-	uint8_t slavePICMask = inb(0x21);
+	//uint8_t masterPICMask = inb(0xA1);
+	//uint8_t slavePICMask = inb(0x21);
+	uint8_t masterPICMask = 0x0;
+	uint8_t slavePICMask = 0x0;
 	// Remap the irq table
 	outb(0x20, 0x11);
 	outb(0xA0, 0x11);
@@ -91,6 +93,7 @@ void isr_handler(registers_t regs) {
 	terminal_writestring("Interrupt: 0x");
 	terminal_writeint(regs.intNo, 16);
 	terminal_writestring("\n");
+	outb(0x20, 0x20);
 }
 isr_t interrupt_handlers[256];
 
