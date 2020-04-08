@@ -1,3 +1,7 @@
 *.d
 *.kernel
 *.o
+
+.project
+.cproject
+.settings/
