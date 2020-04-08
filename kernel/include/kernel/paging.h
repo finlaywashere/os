@@ -3,7 +3,7 @@
 void init_paging();
 uint64_t getPhysicalAddr(uint64_t virtual);
 void mapPage(uint64_t physAddress, uint64_t virtualAddress, uint8_t flags);
-void unmapPage(uint64_t virtual);
+void unmapPage(uint64_t virtualAddr);
 
 struct page_table{
 	uint64_t entries[1024];

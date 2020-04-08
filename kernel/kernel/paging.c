@@ -16,6 +16,11 @@ uint64_t getPhysicalAddr(uint64_t virtual) {
 
 	return (pt->entries[ptindex] & ~0xFFF) + (virtual & 0xFFF);
 }
+
+static inline void flush_tlb_single(unsigned long addr){
+	asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
+}
+
 void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
 	uint64_t pdindex = virtual >> 22;
 	uint64_t ptindex = (virtual >> 12) & 0x03FF;
@@ -25,7 +30,9 @@ void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
 		panic("Tried to map page to an address that is already mapped");
 	}
 	pt->entries[ptindex] = physical | (flags & 0xFFF) | 0x01; //Present
+	flush_tlb_single(virtual);
 }
+
 void unmapPage(uint64_t virtual) {
 	uint64_t pdindex = virtual >> 22;
 	uint64_t ptindex = (virtual >> 12) & 0x03FF;

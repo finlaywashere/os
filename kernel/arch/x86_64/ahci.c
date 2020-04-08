@@ -1,6 +1,7 @@
 #include <arch/x86_64/ahci.h>
 #include <arch/x86_64/pci.h>
 #include <arch/x86_64/tty.h>
+#include <kernel/paging.h>
 
 int check_type(HBA_PORT *port){
 	uint32_t ssts = port->ssts;
@@ -19,7 +20,7 @@ int check_type(HBA_PORT *port){
 int probe_port(HBA_MEM *mem, int portno){
 	uint32_t pi = mem->pi;
 	if(pi & 1){
-		return check_type(&mem->ports[portnum]);
+		return check_type(&mem->ports[portno]);
 	}
 	return 0;
 }
@@ -51,8 +52,26 @@ void init_ahci(){
 		controller = function;
 		break;
 	}
-	HBA_MEM *mem = controller.bar5;
+	terminal_writestring("AHCI MMIO: 0x");
+	terminal_writeint(controller.bar5,16);
+	terminal_writestring("\n");
 	
+	mapPage(controller.bar5,controller.bar5,1<<1);
+	
+	HBA_MEM *mem = (uint64_t) controller.bar5;
+	
+	terminal_writestring("Mem addr: 0x");
+	terminal_writeint(mem,16);
+	terminal_writestring("\n");
+	
+	terminal_writestring("Cap: 0x");
+	terminal_writeint(mem->cap,16);
+	terminal_writestring("\n");
+
+	/*terminal_writestring("HBA version: ");
+	terminal_writeint(mem->vs,10);
+	terminal_writestring("\n");
+
 	for(int i = 0; i < 32; i++){
 		int result = probe_port(mem,i);
 		if(result == 1){
@@ -60,6 +79,6 @@ void init_ahci(){
 			terminal_writeint(i,16);
 			terminal_writestring("\n");
 		}
-	}
+	}*/
 	
 }
