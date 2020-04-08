@@ -57,6 +57,63 @@ pci_device_function_t* getFunction(uint8_t bus, uint8_t device,
 	ret_function->headerType = headerType;
 	uint8_t bist = (uint8_t) (headerTypeBIST >> 8);
 	ret_function->bist = bist;
+	
+	uint16_t bar0_0 = pciConfigReadWord(bus,device,function,0x10);
+	uint16_t bar0_1 = pciConfigReadWord(bus,device,function,0x12);
+	uint32_t bar0 = (uint32_t) (bar0_1 << 8) | bar0_0;
+	ret_function->bar0 = bar0;
+	uint16_t bar1_0 = pciConfigReadWord(bus,device,function,0x14);
+	uint16_t bar1_1 = pciConfigReadWord(bus,device,function,0x16);
+	uint32_t bar1 = (uint32_t) (bar1_1 << 8) | bar1_0;
+	ret_function->bar1 = bar1;
+	uint16_t bar2_0 = pciConfigReadWord(bus,device,function,0x18);
+	uint16_t bar2_1 = pciConfigReadWord(bus,device,function,0x1A);
+	uint32_t bar2 = (uint32_t) (bar2_1 << 8) | bar2_0;
+	ret_function->bar2 = bar2;
+	uint16_t bar3_0 = pciConfigReadWord(bus,device,function,0x1C);
+	uint16_t bar3_1 = pciConfigReadWord(bus,device,function,0x1E);
+	uint32_t bar3 = (uint32_t) (bar3_1 << 8) | bar3_0;
+	ret_function->bar3 = bar3;
+	uint16_t bar4_0 = pciConfigReadWord(bus,device,function,0x20);
+	uint16_t bar4_1 = pciConfigReadWord(bus,device,function,0x22);
+	uint32_t bar4 = (uint32_t) (bar4_1 << 8) | bar4_0;
+	ret_function->bar4 = bar4;
+	uint16_t bar5_0 = pciConfigReadWord(bus,device,function,0x24);
+	uint16_t bar5_1 = pciConfigReadWord(bus,device,function,0x26);
+	uint32_t bar5 = (uint32_t) (bar5_1 << 8) | bar5_0;
+	ret_function->bar5 = bar5;
+	
+	uint16_t cis_0 = pciConfigReadWord(bus,device,function,0x28);
+	uint16_t cis_1 = pciConfigReadWord(bus,device,function,0x2A);
+	uint32_t cis = (uint32_t) (cis_1 << 8) | cis_0;
+	ret_function->cisPointer = cis;
+	
+	uint16_t subsystemVendor = pciConfigReadWord(bus,device,function,0x2C);
+	ret_function->subsystemVendorID = subsystemVendor;
+	
+	uint16_t subsystemID = pciConfigReadWord(bus,device,function,0x2E);
+	ret_function->subsystemID = subsystemID;
+	
+	uint16_t expansionAddr_0 = pciConfigReadWord(bus,device,function,0x30);
+	uint16_t expansionAddr_1 = pciConfigReadWord(bus,device,function,0x32);
+	uint32_t expansionAddr = (uint32_t) (expansionAddr_1 << 8) | expansionAddr_0;
+	ret_function->expansionROMAddr = expansionAddr;
+	
+	uint8_t capabilitiesPointer = (uint8_t) pciConfigReadWord(bus,device,function,0x34) & 0xFF;
+	ret_function->capabilitiesPointer = capabilitiesPointer;
+	
+	uint16_t interrupt = pciConfigReadWord(bus,device,function,0x3C);
+	uint8_t interruptLine = (uint8_t) interrupt & 0xFF;
+	ret_function->interruptLine = interruptLine;
+	uint8_t interruptPin = (uint8_t) interrupt>>8;
+	ret_function->interruptPin = interruptPin;
+	
+	uint16_t minGrantMaxLatency = pciConfigReadWord(bus,device,function,0x3E);
+	uint8_t minGrant = (uint8_t) minGrantMaxLatency & 0xFF;
+	ret_function->minGrant = minGrant;
+	uint8_t maxLatency = (uint8_t) minGrantMaxLatency >> 8;
+	ret_function->maxLatency = maxLatency;
+	
 	return ret_function;
 }
 

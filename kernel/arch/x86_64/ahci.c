@@ -10,4 +10,11 @@ void init_ahci(){
 		terminal_writeint(function.classCode,2);
 		terminal_writestring("\n");
 	}
+	FIS_REG_H2D fis;
+	memset(&fis,0,sizeof(FIS_REG_H2D));
+	fis.fis_type = FIS_TYPE_REG_H2D;
+	fis.command = 0xEC;
+	fis.device = 0;
+	fis.c = 1;
+
 }

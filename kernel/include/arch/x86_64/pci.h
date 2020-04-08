@@ -13,6 +13,21 @@ struct pci_device_function{
 	uint8_t latencyTimer;
 	uint8_t headerType;
 	uint8_t bist;
+	uint32_t bar0;
+	uint32_t bar1;
+	uint32_t bar2;
+	uint32_t bar3;
+	uint32_t bar4;
+	uint32_t bar5;
+	uint32_t cisPointer;
+	uint16_t subsystemVendorID;
+	uint16_t subsystemID;
+	uint32_t expansionROMAddr;
+	uint8_t capabilitiesPointer;
+	uint8_t interruptLine;
+	uint8_t interruptPin;
+	uint8_t minGrant;
+	uint8_t maxLatency;
 };
 
 typedef struct pci_device_function pci_device_function_t;
