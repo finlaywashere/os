@@ -52,23 +52,15 @@ void init_ahci(){
 		controller = function;
 		break;
 	}
-	terminal_writestring("AHCI MMIO: 0x");
-	terminal_writeint(controller.bar5,16);
-	terminal_writestring("\n");
-	
 	mapPage(controller.bar5,controller.bar5,1<<1);
 	
 	HBA_MEM *mem = (uint64_t) controller.bar5;
-	
-	terminal_writestring("Mem addr: 0x");
-	terminal_writeint(mem,16);
-	terminal_writestring("\n");
 	
 	terminal_writestring("Cap: 0x");
 	terminal_writeint(mem->cap,16);
 	terminal_writestring("\n");
 
-	/*terminal_writestring("HBA version: ");
+	terminal_writestring("HBA version: ");
 	terminal_writeint(mem->vs,10);
 	terminal_writestring("\n");
 
@@ -79,6 +71,6 @@ void init_ahci(){
 			terminal_writeint(i,16);
 			terminal_writestring("\n");
 		}
-	}*/
+	}
 	
 }

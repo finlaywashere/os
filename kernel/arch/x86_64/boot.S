@@ -12,8 +12,9 @@ align 4
 bits 32
 ; Sets up the stack for the kernel
 section .bss
-align 16
 align 4096
+null_table:
+	resb 4096
 p4_table:
 	resb 4096
 p3_table:
@@ -24,7 +25,7 @@ p1_table:
 	resb 4096
 
 stack_bottom:
-resb 1048576 ; 1MiB
+resb 524288 ; 512KiB
 stack_top:
 
 section .rodata
@@ -120,18 +121,23 @@ set_up_page_tables:
 	mov eax, p2_table
 	or eax, 0b11 ; Present and writable
 	mov [p3_table], eax
-
+	
+	; map first P2 entry to P1
+	mov eax, p1_table
+	or eax, 0b11 ; Present and writable
+	mov [p2_table], eax
+	
 	mov ecx, 0 ; counter
-.map_p2_table:
-	; map ecx-th P2 entry to a huge page at address 2MiB*ecx
-	mov eax, 0x200000 ; 2MiB
+.map_p1_table:
+	; map ecx-th P1 entry to a page at address 4KiB*ecx
+	mov eax, 0x1000 ; 4KiB
 	mul ecx ; start address of page
-	or eax,0b10000011 ; present, writable, and huge
-	mov [p2_table + ecx*8], eax ; map entry
+	or eax,0b11 ; present, and writable
+	mov [p1_table + ecx*8], eax ; map entry
 
 	inc ecx
-	cmp ecx, 10 ; if the counter is 10 then 20MB is mapped
-	jne .map_p2_table ; else map some more
+	cmp ecx, 512 ; if the counter is 512 then 2MiB is mapped
+	jne .map_p1_table ; else map some more
 
 	ret
 enable_paging:

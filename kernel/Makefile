@@ -56,7 +56,7 @@ os.kernel: $(OBJS) $(ARCHDIR)/linker.ld
 	$(CC) -MD -c $< -o $@ -std=gnu11 $(CFLAGS) $(CPPFLAGS)
  
 .S.o:
-	$(AS) -felf64 $< -o $@
+	$(AS) -felf64 -g -F dwarf $< -o $@
  
 clean:
 	rm -f os.kernel

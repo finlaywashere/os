@@ -6,54 +6,54 @@
 
 page_directory_t *p4_table;
 
-#define PAGE_SIZE 0x200000
-
-uint64_t getPhysicalAddr(uint64_t virtual) {
-	uint64_t pdindex = virtual >> 22;
-	uint64_t ptindex = (virtual >> 12) & 0x03FF;
-
-	page_table_t *pt = p4_table->tables[pdindex];
-
-	return (pt->entries[ptindex] & ~0xFFF) + (virtual & 0xFFF);
-}
+#define PAGE_SIZE 0x1000
 
 static inline void flush_tlb_single(unsigned long addr){
 	asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
 }
 
 void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
-	uint64_t pdindex = virtual >> 22;
-	uint64_t ptindex = (virtual >> 12) & 0x03FF;
-
-	page_table_t *pt = p4_table->tables[pdindex];
-	if (pt->entries[ptindex]) {
-		panic("Tried to map page to an address that is already mapped");
+	uint64_t p4_index = virtual >> 39;
+	uint64_t p3_index = virtual >> 30 & 0b000000000111111111;
+	uint64_t p2_index = virtual >> 21 & 0b000000000000000000111111111;
+	uint64_t p1_index = virtual >> 12 & 0b000000000000000000000000000111111111;
+	
+	page_3_table_t* p3_table = (page_3_table_t*) (p4_table->tables[p4_index] & 0xFFFFFFFFFFFFF800);
+	if(p3_table == 0){
+		p3_table = kmalloc_a(4096,4096);
+		memset(p3_table,0,4096);
+		p4_table->tables[p4_index] = (uint64_t)p3_table | 0b11;
 	}
-	pt->entries[ptindex] = physical | (flags & 0xFFF) | 0x01; //Present
+	page_2_table_t* p2_table = (page_2_table_t*) (p3_table->entries[p3_index] & 0xFFFFFFFFFFFFF800);
+	if(p2_table == 0){
+		p2_table = kmalloc_a(4096,4096);
+		memset(p2_table,0,4096);
+		p3_table->entries[p3_index] = (uint64_t)p2_table | 0b11;
+	}
+	page_1_table_t* p1_table = (page_1_table_t*) (p2_table->entries[p2_index] & 0xFFFFFFFFFFFFF800);
+	if(p1_table == 0){
+		p1_table = kmalloc_a(4096,4096);
+		memset(p1_table,0,4096);
+		p2_table->entries[p2_index] = (uint64_t)p1_table | 0b11;
+	}
+	
+	if(p1_table->entries[p1_index] != 0){
+		panic("Tried to map page where page exists!");
+	}
+	
+	uint64_t entry = physical | 0b1 | flags;
+	
+	p1_table->entries[p1_index] = entry;
+	
 	flush_tlb_single(virtual);
 }
 
 void unmapPage(uint64_t virtual) {
-	uint64_t pdindex = virtual >> 22;
-	uint64_t ptindex = (virtual >> 12) & 0x03FF;
-
-	page_table_t *pt = p4_table->tables[pdindex];
-	if (!pt->entries[ptindex]) {
-		return;
-	}
-	pt->entries[ptindex] = 0x0; // Unmap
+	return;
 }
 
 void init_paging() {
 	uint64_t cr3;
 	asm ("mov %%cr3, %0": "=r"(cr3));
 	p4_table = cr3;
-	for(int i = 0; i < 512; i++){
-		if(!p4_table->tables[i]){
-			page_table_t *pt = kmalloc_a(sizeof(page_table_t),1);
-			uint64_t pointer = pt;
-			uint64_t entry = (pointer & 0xFFFFFFFFFFFF0000) | 0x3;
-			p4_table->tables[i] = entry;
-		}
-	}
 }

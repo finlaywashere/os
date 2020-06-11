@@ -5,12 +5,19 @@ uint64_t getPhysicalAddr(uint64_t virtual);
 void mapPage(uint64_t physAddress, uint64_t virtualAddress, uint8_t flags);
 void unmapPage(uint64_t virtualAddr);
 
-struct page_table{
-	uint64_t entries[1024];
+struct page_1_table{
+	uint64_t entries[512];
 }__attribute__((packed));
-typedef struct page_table page_table_t;
-
+typedef struct page_1_table page_1_table_t;
+struct page_2_table{
+	uint64_t entries[512];
+}__attribute__((packed));
+typedef struct page_2_table page_2_table_t;
+struct page_3_table{
+	uint64_t entries[512];
+}__attribute__((packed));
+typedef struct page_3_table page_3_table_t;
 struct page_directory{
-	page_table_t *tables[1024];
+	uint64_t tables[512];
 }__attribute__((packed));
 typedef struct page_directory page_directory_t;
