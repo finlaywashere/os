@@ -26,10 +26,12 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("\n");
 	init_idt();
 	terminal_writestring("Successfully initialized IDT\n");
-	init_pmm(mbd);
-	terminal_writestring("Successfully initialized PMM\n");
+	init_pmm_base();
+	terminal_writestring("Successfully initialized PMM base\n");
 	init_paging();
 	terminal_writestring("Successfully initialized paging\n");
+	init_pmm(mbd);
+	terminal_writestring("Successfully initialized PMM full\n");
 	init_timer();
 	terminal_writestring("Successfully initialized PIT\n");
 	init_keyboard();
@@ -43,8 +45,10 @@ void kernel_main(multiboot_info_t* mbd){
 	uint64_t numRootEntries = num_entries_in_root();
 	directory_entry_t *root = read_root_directory();
 	for(uint64_t i = 0; i < numRootEntries; i++){
-		if(root[i].objType == 0){
+		if(root[i].objType == 0 && root[i].name[0] != 0x0){
 			terminal_writestring(root[i].name);
+			terminal_writestring("\n");
+			terminal_write(readFile(&root[i]),root[i].fileSize);
 			terminal_writestring("\n");
 		}
 	}

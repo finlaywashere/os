@@ -18,6 +18,7 @@ void mapPages(uint64_t physical, uint64_t virtual, uint8_t flags, uint64_t size)
 			mapPage(physical+(PAGE_SIZE*i),virtual+(PAGE_SIZE*i),flags);
 	}
 }
+int setup = 1;
 void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
 	uint64_t p4_index = virtual >> 39;
 	uint64_t p3_index = virtual >> 30 & 0b000000000111111111;
@@ -26,19 +27,33 @@ void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
 	
 	page_3_table_t* p3_table = (page_3_table_t*) (p4_table->tables[p4_index] & 0xFFFFFFFFFFFFF800);
 	if(p3_table == 0){
-		p3_table = kmalloc_a(4096,4096);
+		if(!setup){
+			p3_table = kmalloc_a(4096,4096);
+		}else{
+			p3_table = kmalloc_ar(4096,4096);
+		}
 		memset(p3_table,0,4096);
 		p4_table->tables[p4_index] = (uint64_t)p3_table | 0b11;
 	}
 	page_2_table_t* p2_table = (page_2_table_t*) (p3_table->entries[p3_index] & 0xFFFFFFFFFFFFF800);
 	if(p2_table == 0){
-		p2_table = kmalloc_a(4096,4096);
+		if(!setup){
+                        p2_table = kmalloc_a(4096,4096);
+                }else{
+                        p2_table = kmalloc_ar(4096,4096);
+                }
+
 		memset(p2_table,0,4096);
 		p3_table->entries[p3_index] = (uint64_t)p2_table | 0b11;
 	}
 	page_1_table_t* p1_table = (page_1_table_t*) (p2_table->entries[p2_index] & 0xFFFFFFFFFFFFF800);
 	if(p1_table == 0){
-		p1_table = kmalloc_a(4096,4096);
+		if(!setup){
+                        p1_table = kmalloc_a(4096,4096);
+                }else{
+                        p1_table = kmalloc_ar(4096,4096);
+                }
+
 		memset(p1_table,0,4096);
 		p2_table->entries[p2_index] = (uint64_t)p1_table | 0b11;
 	}
@@ -105,4 +120,5 @@ void init_paging() {
 	p4_table = cr3;
 	
 	mapPages(0x200000,0x200000,1<<1,0x200000);
+	setup = 0;
 }

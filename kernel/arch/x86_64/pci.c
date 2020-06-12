@@ -27,7 +27,7 @@ pci_device_function_t* getFunction(uint8_t bus, uint8_t device,
 	uint16_t vendorID = pciConfigReadWord(bus, device, function, 0);
 	if (vendorID == 0xFFFF)
 		return 0x0;
-	pci_device_function_t *ret_function = kmalloc(
+	pci_device_function_t *ret_function = kmalloc_p(
 			sizeof(pci_device_function_t));
 	ret_function->vendorID = vendorID;
 	uint16_t deviceID = pciConfigReadWord(bus, device, function, 0x2);
@@ -128,7 +128,7 @@ void init_pci_bus(uint8_t bus) {
 					0x18) >> 8);
 			init_pci_bus(secondaryBusNumber);
 		} else {
-			pci_device_t *device = kmalloc(sizeof(pci_device_t));
+			pci_device_t *device = kmalloc_p(sizeof(pci_device_t));
 			memset(device, 0, sizeof(pci_device_t));
 			device->functions[0] = function;
 			if (function->headerType & 1 << 7) {
@@ -173,9 +173,9 @@ uint8_t countPCIDevicesByClass(uint8_t class) {
 }
 pci_device_result_t* findPCIDevicesByClass(uint8_t class) {
 	uint8_t count = countPCIDevicesByClass(class);
-	pci_device_result_t *result = kmalloc(
+	pci_device_result_t *result = kmalloc_p(
 			sizeof(uint8_t) + sizeof(pci_device_function_t*));
-	pci_device_function_t *functions = kmalloc(
+	pci_device_function_t *functions = kmalloc_p(
 			sizeof(pci_device_function_t) * count);
 	result->count = count;
 	uint8_t i2 = 0;
@@ -201,7 +201,7 @@ pci_device_result_t* findPCIDevicesByClass(uint8_t class) {
 }
 
 void init_pci() {
-	busses = kmalloc(sizeof(pci_bus_t) * 256);
+	busses = (pci_bus_t*)kmalloc_p(sizeof(pci_bus_t) * 256);
 	memset(busses, 0, sizeof(pci_bus_t) * 256);
 	init_pci_bus(0);
 	for (int i = 0; i < 10; i++) {

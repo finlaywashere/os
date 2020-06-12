@@ -23,7 +23,8 @@ p2_table:
 	resb 4096
 p1_table:
 	resb 4096
-
+p1_table_2:
+	resb 4096
 stack_bottom:
 resb 524288 ; 512KiB
 stack_top:
@@ -127,6 +128,11 @@ set_up_page_tables:
 	or eax, 0b11 ; Present and writable
 	mov [p2_table], eax
 	
+	; map 2nd P2 entry to second P1
+	mov eax, p1_table_2
+	or eax, 0b11 ; Present and writable
+	mov [p2_table + 8], eax
+	
 	mov ecx, 0 ; counter
 .map_p1_table:
 	; map ecx-th P1 entry to a page at address 4KiB*ecx
@@ -138,6 +144,19 @@ set_up_page_tables:
 	inc ecx
 	cmp ecx, 512 ; if the counter is 512 then 2MiB is mapped
 	jne .map_p1_table ; else map some more
+	mov ecx, 0; counter
+.map_p1_table_2:
+	; map ecx-th P1 entry to a page at address 4KiB*ecx
+        mov eax, 0x1000 ; 4KiB
+        mul ecx ; start address of page
+        add eax, 0x200000 ; Add 2MiB
+	or eax,0b11 ; present, and writable
+        mov [p1_table_2 + ecx*8], eax ; map entry
+
+        inc ecx
+        cmp ecx, 512 ; if the counter is 512 then 2MiB is mapped
+        jne .map_p1_table_2 ; else map some more
+        mov ecx, 0; counter
 
 	ret
 enable_paging:
