@@ -14,7 +14,8 @@ static inline void flush_tlb_single(unsigned long addr){
 void mapPages(uint64_t physical, uint64_t virtual, uint8_t flags, uint64_t size){
 	uint64_t numPages = size/PAGE_SIZE+1;
 	for(uint64_t i = 0; i < numPages; i++){
-		mapPage(physical+(PAGE_SIZE*i),virtual+(PAGE_SIZE*i),flags);
+		if(!isMapped(virtual+(PAGE_SIZE*i)))
+			mapPage(physical+(PAGE_SIZE*i),virtual+(PAGE_SIZE*i),flags);
 	}
 }
 void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
@@ -40,10 +41,6 @@ void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
 		p1_table = kmalloc_a(4096,4096);
 		memset(p1_table,0,4096);
 		p2_table->entries[p2_index] = (uint64_t)p1_table | 0b11;
-	}
-	
-	if(p1_table->entries[p1_index] != 0){
-		panic("Tried to map page where page exists!");
 	}
 	
 	uint64_t entry = physical | 0b1 | flags;
@@ -106,4 +103,6 @@ void init_paging() {
 	uint64_t cr3;
 	asm ("mov %%cr3, %0": "=r"(cr3));
 	p4_table = cr3;
+	
+	mapPages(0x200000,0x200000,1<<1,0x200000);
 }

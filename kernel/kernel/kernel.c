@@ -10,7 +10,7 @@
 #include "arch/x86_64/paging.h"
 #include "arch/x86_64/ahci.h"
 #include "kernel/timer.h"
-
+#include "kernel/fs/echfs.h"
 void panic(char *message){
 	asm volatile("cli");
 	terminal_writestring("PANIC: ");
@@ -38,18 +38,15 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("Successfully initialized PCI\n");
 	init_ahci();
 	terminal_writestring("Successfully initialized AHCI\n");
-	uint16_t *buf = kmalloc(1024);
-	memset(buf,0,1024);
-	int result = read(getPort(0), 0, 0, 1024, buf);
-	uint8_t *newBuf = (uint8_t *)buf;
-	if(result){
-		terminal_writestring("Failed to read from disk 0!\n");
-	}else{
-		terminal_writestring("Successfully read from disk 0!\n");
-		for(int i = 4; i < 12; i++){
-			terminal_putchar(newBuf[i]);
+	init_echfs();
+	terminal_writestring("Successfully initialized ECHFS!\n");
+	uint64_t numRootEntries = num_entries_in_root();
+	directory_entry_t *root = read_root_directory();
+	for(uint64_t i = 0; i < numRootEntries; i++){
+		if(root[i].objType == 0){
+			terminal_writestring(root[i].name);
+			terminal_writestring("\n");
 		}
-		terminal_putchar('\n');
 	}
 	while(1){
 		// Kernel loop

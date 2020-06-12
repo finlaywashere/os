@@ -282,4 +282,5 @@ typedef struct tagHBA_CMD_TBL{
 void init_ahci();
 int read(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf);
 HBA_PORT *getPort(int index);
+int write(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf);
 
