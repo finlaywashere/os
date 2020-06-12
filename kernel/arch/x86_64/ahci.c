@@ -1,7 +1,7 @@
 #include <arch/x86_64/ahci.h>
 #include <arch/x86_64/pci.h>
 #include <arch/x86_64/tty.h>
-#include <kernel/paging.h>
+#include <arch/x86_64/paging.h>
 
 int check_type(HBA_PORT *port){
 	uint32_t ssts = port->ssts;

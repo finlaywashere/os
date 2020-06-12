@@ -7,7 +7,7 @@
 #include "kernel/string.h"
 #include <stdint.h>
 #include "arch/x86_64/isr.h"
-#include "kernel/paging.h"
+#include "arch/x86_64/paging.h"
 #include "arch/x86_64/ahci.h"
 #include "kernel/timer.h"
 
