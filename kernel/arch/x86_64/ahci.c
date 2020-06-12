@@ -39,6 +39,81 @@ int find_cmdslot(HBA_PORT *port){
 	return -1;
 }
 
+int read(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf){
+	port->is = (uint32_t) -1; // Clear interrupt bit
+	int spin = 0; // Timeout counter
+	int slot = find_cmdslot(port);
+	if(slot == -1)
+		return 1;
+	HBA_CMD_HEADER *cmdheader = (HBA_CMD_HEADER*)port->clb;
+	cmdheader+=slot;
+	cmdheader->cfl = sizeof(FIS_REG_H2D)/sizeof(uint32_t);
+	cmdheader->w = 0; // Read from device
+	cmdheader->prdtl = (uint16_t)((count-1)>>4) + 1; //PRDT entries count
+	
+	HBA_CMD_TBL *cmdtbl = (HBA_CMD_TBL*)(cmdheader->ctba);
+	memset(cmdtbl,0,sizeof(HBA_CMD_TBL)+(cmdheader->prdtl-1)*sizeof(HBA_PRDT_ENTRY));
+	for(int i = 0; i < cmdheader->prdtl-1; i++){ //8K bytes, 16 sectors, per PRDT
+		cmdtbl->prdt_entry[i].dba = (uint32_t) buf;
+		cmdtbl->prdt_entry[i].dbc = 8*1024-1; //8K bytes, this needs to be 8K minus 1
+		cmdtbl->prdt_entry[i].i = i;
+		buf += 4*1024; // 4K words
+		count -= 16; // 16 sectors
+	}
+	int i = cmdheader->prdtl-1;
+	cmdtbl->prdt_entry[i].dba = (uint32_t) buf;
+	cmdtbl->prdt_entry[i].dbc = (count<<9)-1; //512 bytes per sector
+	cmdtbl->prdt_entry[i].i = i;
+	
+	//Setup command
+	FIS_REG_H2D *cmdfis = (FIS_REG_H2D*)(&cmdtbl->cfis);
+	
+	cmdfis->fis_type = FIS_TYPE_REG_H2D;
+	cmdfis->c = 1; //Command
+	cmdfis->command = ATA_CMD_READ_DMA_EX;
+	
+	cmdfis->lba0 = (uint8_t) startl;
+	cmdfis->lba1 = (uint8_t) (startl>>8);
+	cmdfis->lba2 = (uint8_t) (startl>>16);
+	cmdfis->device = 1<<6; //Set LBA mode
+
+	cmdfis->lba3 = (uint8_t) (startl>>24);
+	cmdfis->lba4 = (uint8_t) starth;
+	cmdfis->lba5 = (uint8_t) (starth>>8);
+
+	cmdfis->countl = count & 0xFF;
+	cmdfis->counth = (count >> 8) & 0xFF;
+	
+	// Wait until port isn't busy or timeout is reached
+	while((port->tfd & (ATA_DEV_BUSY | ATA_DEV_DRQ)) && spin < 1000000){
+		spin++;
+	}
+	if(spin == 1000000){
+		terminal_writestring("AHCI port is hung!\n");
+		return 1;
+	}
+	port->ci = 1<<slot; //Issue the command
+	
+	while(1){
+		// If the command has completed
+		if((port->ci & (1<<slot)) == 0)
+			break;
+		if(port->is & HBA_PxIS_TFES){ //Task File Error
+			terminal_writestring("AHCI read disk error!\n");
+			return 1;
+		}
+	}
+	if(port->is & HBA_PxIS_TFES){
+		terminal_writestring("AHCI read disk error!\n");
+		return 1;
+	}
+	return 0;
+}
+HBA_MEM *mem = 0;
+HBA_PORT *getPort(int index){
+	return &mem->ports[index];
+}
+
 void init_ahci(){
 	pci_device_result_t* ahciDevices = findPCIDevicesByClass(0x01);
 	for(int i = 0; i < ahciDevices->count; i++){
@@ -50,7 +125,7 @@ void init_ahci(){
 		break;
 	}
 	mapPages(controller.bar5,controller.bar5,1<<1,sizeof(HBA_MEM)+sizeof(HBA_PORT)*32);
-	HBA_MEM *mem = (uint64_t) controller.bar5;
+	mem = (uint64_t) controller.bar5;
 	
 	terminal_writestring("Cap: 0x");
 	terminal_writeint(mem->cap,16);

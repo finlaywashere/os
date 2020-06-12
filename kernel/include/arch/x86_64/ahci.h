@@ -1,5 +1,34 @@
 #include <stdint.h>
 
+#define SATA_SIG_ATA    0x00000101  // SATA drive
+#define SATA_SIG_ATAPI  0xEB140101  // SATAPI drive
+#define SATA_SIG_SEMB   0xC33C0101  // Enclosure management bridge
+#define SATA_SIG_PM 0x96690101  // Port multiplier
+#define AHCI_DEV_NULL 0
+#define AHCI_DEV_SATA 1
+#define AHCI_DEV_SATAPI 4
+#define AHCI_DEV_SEMB 2
+#define AHCI_DEV_PM 3
+#define HBA_PORT_DET_PRESENT 3
+#define HBA_PORT_IPM_ACTIVE 1
+#define AHCI_BASE   0x400000    // 4M
+#define HBA_PxCMD_CR            (1 << 15) /* CR - Command list Running */
+#define HBA_PxCMD_FR            (1 << 14) /* FR - FIS receive Running */
+#define HBA_PxCMD_FRE           (1 <<  4) /* FRE - FIS Receive Enable */
+#define HBA_PxCMD_SUD           (1 <<  1) /* SUD - Spin-Up Device */
+#define HBA_PxCMD_ST            (1 <<  0) /* ST - Start (command processing) */
+#define ATA_DEV_BUSY 0x80
+#define ATA_DEV_DRQ 0x08
+
+#define ATA_DEV_BUSY 0x80
+#define ATA_DEV_DRQ 0x08
+
+#define ATA_DEV_BUSY 0x80
+#define ATA_DEV_DRQ 0x08
+#define HBA_PxIS_TFES   (1 << 30)       /* TFES - Task File Error Status */
+#define ATA_CMD_READ_DMA_EX     0x25
+#define ATA_CMD_WRITE_DMA_EX     0x35
+
 typedef enum{
 	FIS_TYPE_REG_H2D	= 0x27,	// Register FIS - host to device
 	FIS_TYPE_REG_D2H	= 0x34,	// Register FIS - device to host
@@ -224,5 +253,33 @@ typedef struct tagHBA_CMD_HEADER
 	// DW4 - 7
 	uint32_t rsv1[4];	// Reserved
 } HBA_CMD_HEADER;
+
+typedef struct tagHBA_PRDT_ENTRY{
+        uint32_t dba;           // Data base address
+        uint32_t dbau;          // Data base address upper 32 bits
+        uint32_t rsv0;          // Reserved
+
+        // DW3
+        uint32_t dbc:22;                // Byte count, 4M max
+        uint32_t rsv1:9;                // Reserved
+        uint32_t i:1;           // Interrupt on completion
+} HBA_PRDT_ENTRY;
+
+typedef struct tagHBA_CMD_TBL{
+	// 0x00
+	uint8_t  cfis[64];	// Command FIS
+ 
+	// 0x40
+	uint8_t  acmd[16];	// ATAPI command, 12 or 16 bytes
+ 
+	// 0x50
+	uint8_t  rsv[48];	// Reserved
+ 
+	// 0x80
+	HBA_PRDT_ENTRY	prdt_entry[1];	// Physical region descriptor table entries, 0 ~ 65535
+} HBA_CMD_TBL;
  
 void init_ahci();
+int read(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf);
+HBA_PORT *getPort(int index);
+

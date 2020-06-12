@@ -38,6 +38,19 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("Successfully initialized PCI\n");
 	init_ahci();
 	terminal_writestring("Successfully initialized AHCI\n");
+	uint16_t *buf = kmalloc(1024);
+	memset(buf,0,1024);
+	int result = read(getPort(0), 0, 0, 1024, buf);
+	uint8_t *newBuf = (uint8_t *)buf;
+	if(result){
+		terminal_writestring("Failed to read from disk 0!\n");
+	}else{
+		terminal_writestring("Successfully read from disk 0!\n");
+		for(int i = 4; i < 12; i++){
+			terminal_putchar(newBuf[i]);
+		}
+		terminal_putchar('\n');
+	}
 	while(1){
 		// Kernel loop
 	}
