@@ -27,4 +27,6 @@ identity_block_t* identity_block;
 uint64_t num_entries_in_root();
 directory_entry_t *read_root_directory();
 uint8_t *readFile(directory_entry_t *file);
+directory_entry_t *read_directory(directory_entry_t *dir, int index);
+void echfs_setup_fs_map();
 

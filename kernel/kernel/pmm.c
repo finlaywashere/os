@@ -8,10 +8,27 @@ uint64_t kernel_end;
 
 memory_block_t *map;
 uint64_t size;
+uint64_t page_base;
+uint64_t page_curr;
+
+uint64_t get_page_base(){
+	return page_base;
+}
 
 void init_pmm_base(){
 	kernel_end = &_kernel_end;
         kernel_end += 0x81000;
+	page_base = kernel_end;
+	page_curr = page_base;
+	kernel_end += 0x100000;
+}
+void *kmalloc_pag(uint64_t size, int align){
+	if(page_curr % align > 0){
+		page_curr += align-page_curr%align;
+	}
+	uint64_t tmp = page_curr;
+	page_curr += size;
+	return (void*)tmp;
 }
 void init_pmm(multiboot_info_t *mbd) {
 	map = (memory_block_t*)kernel_end;
@@ -60,25 +77,24 @@ void init_pmm(multiboot_info_t *mbd) {
 			}
 		}
 	}
+	for(uint64_t i = 0; i < size; i++){
+		memory_block_t block = map[i];
+		// Reserve the very last block for paging or else
+		if(block.len >= 0x100000){
+			uint64_t addr = block.addr;
+			map[size].addr = addr;
+			map[size].len = 0x100000;
+			map[i].addr += 0x100000;
+			map[i].len -= 0x100000;
+			break;
+		}
+	}
+	size++;
 	kernel_end += size*sizeof(memory_block_t);
 }
 
-/* 
-NOTE: don't ever use this, its only to let the paging setup work properly, after that it should NEVER be used
-this function can have unintended consequences such as overwriting important memory structures
-*/
-void* kmalloc_ar(uint64_t sz, int align) {
-	if (align && (kernel_end % align)) {
-		// Align it
-		kernel_end += align - (kernel_end % align);
-	}
-	uint64_t tmp = kernel_end;
-	kernel_end += sz;
-	return (void*) tmp;
-}
-
 void* kmalloc(uint64_t sz) {
-	for(uint64_t i = 0; i < size; i++){
+	for(uint64_t i = 0; i < size-1; i++){
 		memory_block_t block = map[i];
 		if(block.len >= sz){
 			uint64_t addr = block.addr;
@@ -90,26 +106,26 @@ void* kmalloc(uint64_t sz) {
 	return -1;
 }
 void* kmalloc_a(uint64_t sz, int align) {
-	for(uint64_t i = 0; i < size; i++){
+	for(uint64_t i = 0; i < size-1; i++){
                 memory_block_t block = map[i];
 		uint64_t newSz = sz + (align-block.addr%align);
                 if(block.len >= sz){
                         uint64_t addr = block.addr + (align-block.addr%align);
-                        block.len -= newSz;
-                        block.addr += newSz;
+                        map[i].len -= newSz;
+                        map[i].addr += newSz;
 			return (void*)addr;
                 }
         }
 	return -1;
 }
 void* kmalloc_ap(uint64_t sz, int align, uint64_t *phys) {
-        for(uint64_t i = 0; i < size; i++){
+        for(uint64_t i = 0; i < size-1; i++){
                 memory_block_t block = map[i];
                 uint64_t newSz = sz + (align-block.addr%align);
                 if(block.len >= sz){
                         uint64_t addr = block.addr + (align-block.addr%align);
-                        block.len -= newSz;
-                        block.addr += newSz;
+                        map[i].len -= newSz;
+                        map[i].addr += newSz;
 			*phys = addr;
                         return (void*)addr;
                 }

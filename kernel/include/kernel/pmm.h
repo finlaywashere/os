@@ -13,3 +13,6 @@ void* kmalloc(uint64_t sz);
 void* kmalloc_a(uint64_t sz, int align);
 void* kmalloc_ap(uint64_t sz, int align, uint64_t *phys);
 void* kmalloc_ar(uint64_t sz, int align);
+void *kmalloc_pag(uint64_t size, int align);
+uint64_t get_page_base();
+

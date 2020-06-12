@@ -46,3 +46,28 @@ void terminal_writeint(uint64_t integer, int base){
 	buffer = itoa(buffer,64,integer,base);
 	terminal_writestring(buffer);
 }
+char* append(char* c1, char* c2){
+	char* ret = kmalloc_p(strlen(c1)+strlen(c2));
+	uint64_t i = 0;
+	while(c1[i]){
+		ret[i] = c1[i];
+		i++;
+	}
+	uint64_t len = i;
+	i = 0;
+	while(c2[i]){
+		ret[i+len] = c2[i];
+		i++;
+	}
+	return ret;
+}
+
+int count(char* str, char delim){
+	int count = 0;
+        for(int i = 0; i < strlen(str); i++){
+                if(str[i] == delim)
+                        count++;
+        }
+	return count;
+}
+

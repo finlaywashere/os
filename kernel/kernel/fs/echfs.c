@@ -1,6 +1,9 @@
 #include <kernel/fs/echfs.h>
 #include <arch/x86_64/ahci.h>
 #include <kernel/vmm.h>
+#include <kernel/string.h>
+
+
 uint64_t allocation_table_size;
 uint64_t root_block;
 uint64_t *allocation_table;
@@ -32,6 +35,14 @@ directory_entry_t *read_root_directory(){
 		read(port,root_block+i,0,1,rootDir+(i*sizeof(directory_entry_t)*2));
 	}
 	return rootDir;
+}
+directory_entry_t *root_directory_entries;
+void echfs_setup_fs_map(){
+	root_directory_entries = read_root_directory();
+}
+directory_entry_t *getFile(char* name){
+	int countDelim = count(name,'/');
+	
 }
 uint8_t *readFile(directory_entry_t *file){
 	uint8_t *file_buf = kmalloc_p(file->fileSize);

@@ -41,17 +41,8 @@ void kernel_main(multiboot_info_t* mbd){
 	init_ahci();
 	terminal_writestring("Successfully initialized AHCI\n");
 	init_echfs();
+	echfs_setup_fs_map();
 	terminal_writestring("Successfully initialized ECHFS!\n");
-	uint64_t numRootEntries = num_entries_in_root();
-	directory_entry_t *root = read_root_directory();
-	for(uint64_t i = 0; i < numRootEntries; i++){
-		if(root[i].objType == 0 && root[i].name[0] != 0x0){
-			terminal_writestring(root[i].name);
-			terminal_writestring("\n");
-			terminal_write(readFile(&root[i]),root[i].fileSize);
-			terminal_writestring("\n");
-		}
-	}
 	while(1){
 		// Kernel loop
 	}
