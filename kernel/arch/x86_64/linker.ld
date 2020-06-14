@@ -1,21 +1,36 @@
 ENTRY(_start)
 
 SECTIONS{
-	. = 1M;
-	
-	.text BLOCK(4K) : ALIGN(4K){
+	. = 0x100000;
+	_kernel_low_start = .;
+	.low_text BLOCK(4K) : ALIGN(4K){
 		*(.multiboot)
+		*(.low_text)
+	}
+	.low_data BLOCK(4K) : ALIGN(4K){
+		*(.low_data);
+	}
+	.low_bss BLOCK(4K) : ALIGN(4K){
+		*(.low_bss);
+	}
+	.low_rodata BLOCK(4K) : ALIGN(4K){
+		*(.low_rodata);
+	}
+	_kernel_low_end = .;
+	. = 0xFFFFFFFFC0200000;
+	_kernel_virtual_start = .;
+	.text ALIGN (4K) : AT (ADDR (.text) - 0xFFFFFFFFC0000000){
 		*(.text)
 	}
-	.rodata BLOCK(4K) : ALIGN(4K){
+	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xFFFFFFFFC0000000){
 		*(.rodata)
 	}
-	.data BLOCK(4K) : ALIGN(4K){
+	.data ALIGN (4K) : AT (ADDR (.data) - 0xFFFFFFFFC0000000){
 		*(.data)
 	}
-	.bss BLOCK(4K) : ALIGN(4K){
+	.bss ALIGN (4K) : AT (ADDR (.bss) - 0xFFFFFFFFC0000000){
 		*(COMMON)
 		*(.bss)
 	}
-	_kernel_end = .;
+	_kernel_virtual_end = .;
 }

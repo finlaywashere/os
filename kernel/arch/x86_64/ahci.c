@@ -197,7 +197,7 @@ void init_ahci(){
 		break;
 	}
 	mapPages(controller.bar5,controller.bar5,1<<1,sizeof(HBA_MEM)+sizeof(HBA_PORT)*32);
-	mem = (uint64_t) controller.bar5;
+	mem = (uint64_t) controller.bar5+get_phys_base();
 	
 	terminal_writestring("Cap: 0x");
 	terminal_writeint(mem->cap,16);

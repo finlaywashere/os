@@ -10,14 +10,16 @@ align 4
 	dd FLAGS
 	dd CHECKSUM
 bits 32
-; Sets up the stack for the kernel
-section .bss
+; Sets up the page tables for the kernel
+section .low_bss
 align 4096
 null_table:
 	resb 4096
 p4_table:
 	resb 4096
-p3_table:
+p3_table_1:
+	resb 4096
+p3_table_2:
 	resb 4096
 p2_table:
 	resb 4096
@@ -25,11 +27,7 @@ p1_table:
 	resb 4096
 p1_table_2:
 	resb 4096
-stack_bottom:
-resb 524288 ; 512KiB
-stack_top:
-
-section .rodata
+; 64 bit GDT stuff
 GDT64:                           ; Global Descriptor Table (64-bit).
     .Null: equ $ - GDT64         ; The null descriptor.
     dw 0xFFFF                    ; Limit (low).
@@ -56,7 +54,7 @@ GDT64:                           ; Global Descriptor Table (64-bit).
     dw $ - GDT64 - 1             ; Limit.
     dq GDT64                     ; Base.
 
-section .text
+section .low_text
 
 
 ; Prints `ERR: ` and the given error code to screen and hangs.
@@ -114,14 +112,19 @@ check_long_mode:
 	jmp error
 set_up_page_tables:
 	; map first P4 entry to P3 table
-	mov eax, p3_table
+	mov eax, p3_table_1
 	or eax, 0b11 ; Present and writable
+	mov [p4_table+511*8], eax
+	
+	mov eax, p3_table_2
+	or eax, 0b11
 	mov [p4_table], eax
 
 	; map first P3 entry to P2
 	mov eax, p2_table
 	or eax, 0b11 ; Present and writable
-	mov [p3_table], eax
+	mov [p3_table_1+511*8], eax
+	mov [p3_table_2], eax
 	
 	; map first P2 entry to P1
 	mov eax, p1_table
@@ -182,7 +185,6 @@ enable_paging:
 	ret
 global _start
 _start:
-	mov esp, stack_top ; Sets esp to the stack top which grows downwards
 	
 	mov edi,ebx ; Move multiboot header to edi
 

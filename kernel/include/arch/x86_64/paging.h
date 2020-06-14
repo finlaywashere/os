@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#define PAGE_ENTRIES_START 0xFFFFFFFFD00D0000
+
 void init_paging();
 uint64_t getPhysicalAddr(uint64_t virtual);
 void mapPage(uint64_t physAddress, uint64_t virtualAddress, uint8_t flags);
@@ -22,3 +24,10 @@ struct page_directory{
 	uint64_t tables[512];
 }__attribute__((packed));
 typedef struct page_directory page_directory_t;
+
+uint64_t virtual_to_physical(uint64_t virtual);
+uint64_t tableToAddr(uint64_t entry);
+uint64_t tableToMapping(uint64_t entry);
+uint64_t mapTable(uint64_t entry);
+
+

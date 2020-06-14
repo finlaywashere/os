@@ -1,7 +1,7 @@
 HOST=x86_64-elf
 HOSTARCH=x86_64
  
-CFLAGS?=-O2 -g
+CFLAGS?=-O2 -g -F dwarf
 CPPFLAGS?=
 LDFLAGS?=
 LIBS?=
@@ -12,7 +12,7 @@ EXEC_PREFIX?=$(PREFIX)
 BOOTDIR?=$(EXEC_PREFIX)/boot
 INCLUDEDIR?=$(PREFIX)/include
 
-CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra -mno-sse -mno-sse2 -mno-mmx -mno-red-zone
+CFLAGS:=$(CFLAGS) -mcmodel=kernel -ffreestanding -Wall -Wextra -mno-sse -mno-sse2 -mno-mmx -mno-red-zone
 CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude
 LDFLAGS:=$(LDFLAGS)
 LIBS:=$(LIBS) -nostdlib -lgcc
@@ -33,7 +33,8 @@ kernel/string.o \
 kernel/pmm.o \
 kernel/timer.o \
 kernel/fs/echfs.o \
-kernel/vmm.o
+kernel/vmm.o \
+kernel/elf.o
 
 OBJS=\
 $(KERNEL_OBJS) \

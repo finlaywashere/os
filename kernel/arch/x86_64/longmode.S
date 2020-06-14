@@ -1,6 +1,20 @@
 bits 64
+
+section .low_text
 global long_mode_start
 long_mode_start:
+	mov rax, start_higher_half
+	jmp rax
+
+section .bss
+; Sets up the stack for the kernel
+stack_bottom:
+resb 524288 ; 512KiB
+stack_top:
+
+section .text
+start_higher_half:
+	mov rsp, stack_top ; Sets rsp to the stack top which grows downwards
 	mov ax, 0
 	mov ss, ax
 	mov ds, ax

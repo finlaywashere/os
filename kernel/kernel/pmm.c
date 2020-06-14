@@ -3,8 +3,12 @@
 #include <kernel/string.h>
 #include <arch/x86_64/tty.h>
 
-extern uint64_t _kernel_end;
+#define KERNEL_VMA 0xFFFFFFFFC0000000
+
+extern uint64_t _kernel_virtual_end;
+extern uint64_t _kernel_virtual_start;
 uint64_t kernel_end;
+uint64_t kernel_phys_end;
 
 memory_block_t *map;
 uint64_t size;
@@ -14,13 +18,23 @@ uint64_t page_curr;
 uint64_t get_page_base(){
 	return page_base;
 }
+uint64_t get_page_phys_base(){
+	return page_base-KERNEL_VMA;
+}
+uint64_t get_phys_base(){
+	return KERNEL_VMA;
+}
+uint64_t get_kernel_end(){
+	return kernel_end;
+}
 
 void init_pmm_base(){
-	kernel_end = &_kernel_end;
+	kernel_end = &_kernel_virtual_end;
         kernel_end += 0x81000;
 	page_base = kernel_end;
 	page_curr = page_base;
 	kernel_end += 0x100000;
+	kernel_phys_end = kernel_end-KERNEL_VMA;
 }
 void *kmalloc_pag(uint64_t size, int align){
 	if(page_curr % align > 0){
@@ -46,8 +60,8 @@ void init_pmm(multiboot_info_t *mbd) {
 			uint64_t len = ((uint64_t) len_high) << 32 | len_low;
 			
 			// If the address is less than 64KiB plus the kernel end (stack + safety buffer)
-			if(addr < kernel_end + 0x10000){
-				size = size - (kernel_end+0x10000-addr);
+			if(addr < kernel_phys_end + 0x10000){
+				size = size - (kernel_phys_end+0x10000-addr);
 				addr = kernel_end + 0x10000;
 			}
 			map[curr].addr = addr;
