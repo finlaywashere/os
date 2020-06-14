@@ -1,7 +1,5 @@
 #include <stdint.h>
 
-#define PAGE_ENTRIES_START 0xFFFFFFFFD00D0000
-
 void init_paging();
 uint64_t getPhysicalAddr(uint64_t virtual);
 void mapPage(uint64_t physAddress, uint64_t virtualAddress, uint8_t flags);

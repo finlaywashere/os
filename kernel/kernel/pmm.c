@@ -14,6 +14,7 @@ memory_block_t *map;
 uint64_t size;
 uint64_t page_base;
 uint64_t page_curr;
+uint64_t max_mem;
 
 uint64_t get_page_base(){
 	return page_base;
@@ -28,7 +29,8 @@ uint64_t get_kernel_end(){
 	return kernel_end;
 }
 
-void init_pmm_base(){
+void init_pmm_base(multiboot_info_t *mbd){
+	max_mem = (mbd->mem_upper<<32) | mbd->mem_lower;
 	kernel_end = &_kernel_virtual_end;
         kernel_end += 0x81000;
 	page_base = kernel_end;
@@ -43,6 +45,9 @@ void *kmalloc_pag(uint64_t size, int align){
 	uint64_t tmp = page_curr;
 	page_curr += size;
 	return (void*)tmp;
+}
+uint64_t total_memory(){
+	return max_mem;
 }
 void init_pmm(multiboot_info_t *mbd) {
 	map = (memory_block_t*)kernel_end;
@@ -61,6 +66,11 @@ void init_pmm(multiboot_info_t *mbd) {
 			
 			// If the address is less than 64KiB plus the kernel end (stack + safety buffer)
 			if(addr < kernel_phys_end + 0x10000){
+				if(size < (size - (kernel_phys_end+0x10000-addr))){
+					entry = (multiboot_memory_map_t*) ((unsigned int) entry + entry->size
+                                + sizeof(entry->size));
+					continue;
+				}
 				size = size - (kernel_phys_end+0x10000-addr);
 				addr = kernel_end + 0x10000;
 			}

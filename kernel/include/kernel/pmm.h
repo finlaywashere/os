@@ -18,4 +18,5 @@ uint64_t get_page_base();
 uint64_t get_page_phys_base();
 uint64_t get_phys_base();
 uint64_t get_kernel_end();
+uint64_t total_memory();
 

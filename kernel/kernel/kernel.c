@@ -26,12 +26,12 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("\n");
 	init_idt();
 	terminal_writestring("Successfully initialized IDT\n");
-	init_pmm_base();
-	terminal_writestring("Successfully initialized PMM base\n");
-	init_paging();
-	terminal_writestring("Successfully initialized paging\n");
+	init_pmm_base(mbd);
+        terminal_writestring("Successfully initialized PMM base\n");
 	init_pmm(mbd);
 	terminal_writestring("Successfully initialized PMM full\n");
+	init_paging();
+	terminal_writestring("Successfully initialized paging\n");
 	init_timer();
 	terminal_writestring("Successfully initialized PIT\n");
 	init_keyboard();

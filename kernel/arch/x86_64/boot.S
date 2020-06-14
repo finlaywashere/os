@@ -27,6 +27,8 @@ p1_table:
 	resb 4096
 p1_table_2:
 	resb 4096
+p1_table_3:
+	resb 4096
 ; 64 bit GDT stuff
 GDT64:                           ; Global Descriptor Table (64-bit).
     .Null: equ $ - GDT64         ; The null descriptor.
@@ -136,6 +138,11 @@ set_up_page_tables:
 	or eax, 0b11 ; Present and writable
 	mov [p2_table + 8], eax
 	
+	; map 3rd P2 entry to 3rd P1
+	mov eax, p1_table_3
+	or eax, 0b11
+	mov [p2_table + 16], eax
+	
 	mov ecx, 0 ; counter
 .map_p1_table:
 	; map ecx-th P1 entry to a page at address 4KiB*ecx
@@ -159,6 +166,18 @@ set_up_page_tables:
         inc ecx
         cmp ecx, 512 ; if the counter is 512 then 2MiB is mapped
         jne .map_p1_table_2 ; else map some more
+        mov ecx, 0; counter
+.map_p1_table_3:
+	; map ecx-th P1 entry to a page at address 4KiB*ecx
+        mov eax, 0x1000 ; 4KiB
+        mul ecx ; start address of page
+        add eax, 0x400000 ; Add 4MiB
+        or eax,0b11 ; present, and writable
+        mov [p1_table_3 + ecx*8], eax ; map entry
+
+        inc ecx
+        cmp ecx, 512 ; if the counter is 512 then 2MiB is mapped
+        jne .map_p1_table_3 ; else map some more
         mov ecx, 0; counter
 
 	ret
