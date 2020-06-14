@@ -37,8 +37,23 @@ directory_entry_t *read_root_directory(){
 	return rootDir;
 }
 directory_entry_t *root_directory_entries;
+uint64_t root_size;
 void echfs_setup_fs_map(){
+	root_size = num_entries_in_root();
 	root_directory_entries = read_root_directory();
+	for(uint64_t i = 0; i < root_size; i++){
+                directory_entry_t entry = root_directory_entries[i];
+                if(entry.name[0] != 0x0){
+                        if(entry.objType == 0){
+                                terminal_writestring("File: ");
+                        }else if(entry.objType == 1){
+                                terminal_writestring("Directory: ");
+                        }
+                        terminal_writestring(entry.name);
+                        terminal_writestring("\n");
+                }
+        }
+
 }
 directory_entry_t *getFile(char* name){
 	int countDelim = count(name,'/');
