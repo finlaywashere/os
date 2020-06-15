@@ -32,7 +32,7 @@ uint64_t get_kernel_end(){
 void init_pmm_base(multiboot_info_t *mbd){
 	max_mem = (mbd->mem_upper<<32) | mbd->mem_lower;
 	kernel_end = &_kernel_virtual_end;
-        kernel_end += 0x81000;
+        kernel_end += 0x110000;
 	page_base = kernel_end;
 	page_curr = page_base;
 	kernel_end += 0x100000;

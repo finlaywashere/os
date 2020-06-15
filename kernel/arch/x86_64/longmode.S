@@ -9,7 +9,7 @@ long_mode_start:
 section .bss
 ; Sets up the stack for the kernel
 stack_bottom:
-resb 524288 ; 512KiB
+resb 0x100000 ; 1MiB
 stack_top:
 
 section .text

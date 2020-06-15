@@ -4,7 +4,7 @@
 #include "kernel/string.h"
 #include "arch/x86_64/tty.h"
 
-page_directory_t *p4_table;
+page_directory_t *active_directory;
 
 #define PAGE_SIZE 0x1000
 
@@ -29,11 +29,11 @@ void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
 	uint64_t p2_index = (virtual >> 21) & 0b111111111;
 	uint64_t p1_index = (virtual >> 12) & 0b111111111;
 	
-	page_3_table_t* p3_table = (page_3_table_t*) tableToMapping(p4_table->tables[p4_index]);
+	page_3_table_t* p3_table = (page_3_table_t*) tableToMapping(active_directory->tables[p4_index]);
 	if(p3_table == 0){
 		p3_table = palloc();
 		memset(p3_table,0,4096);
-		p4_table->tables[p4_index] = (((uint64_t)p3_table)) | 0b11;
+		active_directory->tables[p4_index] = (((uint64_t)p3_table)) | 0b11;
 	}
 	page_2_table_t* p2_table = (page_2_table_t*) (p3_table->entries[p3_index] & 0xFFFFFFFFFFFFF800);
 	if(p2_table == 0){
@@ -61,7 +61,7 @@ int isMapped(uint64_t virtual){
         uint64_t p2_index = virtual >> 21 & 0b111111111;
         uint64_t p1_index = virtual >> 12 & 0b111111111;
 
-        page_3_table_t* p3_table = (page_3_table_t*) tableToMapping(p4_table->tables[p4_index]);
+        page_3_table_t* p3_table = (page_3_table_t*) tableToMapping(active_directory->tables[p4_index]);
         if(p3_table == 0){
         	return 0;
 	}
@@ -85,7 +85,7 @@ void unmapPage(uint64_t virtual) {
         uint64_t p2_index = virtual >> 21 & 0b111111111;
         uint64_t p1_index = virtual >> 12 & 0b111111111;
 
-        page_3_table_t* p3_table = (page_3_table_t*) tableToMapping(p4_table->tables[p4_index]);
+        page_3_table_t* p3_table = (page_3_table_t*) tableToMapping(active_directory->tables[p4_index]);
         if(p3_table == 0){
         	return;
 	}
@@ -106,28 +106,17 @@ void unmapPage(uint64_t virtual) {
 uint64_t offset = 0;
 uint64_t __attribute__ ((noinline)) tableToMapping(uint64_t entry){
 	uint64_t pointer = entry & 0xFFFFFFFFFFFFF000;
-	pointer += offset;
+	pointer |= offset;
 	return pointer;
 }
 void init_paging(){
 	uint64_t cr3;
 	asm ("mov %%cr3, %0": "=r"(cr3));
-	p4_table = cr3;
+	active_directory = cr3;
 	
 	uint64_t max_mem = total_memory()*0x100000;
 	mapPages(0x0,0xFFFFFFFFC0000000,1<<1,max_mem);
 	offset = 0xFFFFFFFFC0000000;
-	p4_table = p4_table + 0xFFFFFFFFC0000000;
-	p4_table->tables[511] += 0xFFFFFFFFC0000000;
-	page_3_table_t* p3_table = tableToMapping(p4_table->tables[511]);
-	p3_table->entries[511] += 0xFFFFFFFFC0000000;
-	page_2_table_t* p2_table = tableToMapping(p3_table->entries[511]);
-	for(int i = 0; i < 3; i++){
-		p2_table->entries[i] += 0xFFFFFFFFC0000000;
-		page_1_table_t* p1_table = tableToMapping(p2_table->entries[i]);
-		for(int i = 0; i < 512; i++){
-			p1_table->entries[i] += 0xFFFFFFFFC0000000;
-		}
-	}
-	p4_table->tables[0] = 0x0;
+	active_directory = (page_directory_t*)((uint64_t)active_directory | 0xFFFFFFFFC0000000);
+	active_directory->tables[0] = 0x0;
 }
