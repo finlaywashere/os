@@ -32,7 +32,7 @@ uint64_t get_kernel_end(){
 void init_pmm_base(multiboot_info_t *mbd){
 	max_mem = (mbd->mem_upper<<32) | mbd->mem_lower;
 	kernel_end = &_kernel_virtual_end;
-        kernel_end += 0x110000;
+        kernel_end += 0x190000;
 	page_base = kernel_end;
 	page_curr = page_base;
 	kernel_end += 0x100000;
@@ -50,7 +50,7 @@ uint64_t total_memory(){
 	return max_mem;
 }
 void init_pmm(multiboot_info_t *mbd) {
-	map = (memory_block_t*)kernel_end;
+	/*map = (memory_block_t*)kernel_end;
 	multiboot_memory_map_t *entry = mbd->mmap_addr;
 	uint64_t curr = 0;
 	while (entry < mbd->mmap_addr + mbd->mmap_length) {
@@ -114,10 +114,14 @@ void init_pmm(multiboot_info_t *mbd) {
 		}
 	}
 	size++;
-	kernel_end += size*sizeof(memory_block_t);
+	kernel_end += size*sizeof(memory_block_t);*/
 }
 
 void* kmalloc(uint64_t sz) {
+	uint64_t tmp = kernel_end;
+	kernel_end += sz;
+	return tmp;
+	/*
 	for(uint64_t i = 0; i < size-1; i++){
 		memory_block_t block = map[i];
 		if(block.len >= sz){
@@ -127,10 +131,17 @@ void* kmalloc(uint64_t sz) {
 			return (void*) addr;
 		}
 	}
-	return -1;
+	return -1;*/
 }
 void* kmalloc_a(uint64_t sz, int align) {
-	for(uint64_t i = 0; i < size-1; i++){
+	if(kernel_end % align > 0){
+		kernel_end += align-(kernel_end % align);
+	}
+	uint64_t tmp = kernel_end;
+	kernel_end += sz;
+	return tmp;
+	
+	/*for(uint64_t i = 0; i < size-1; i++){
                 memory_block_t block = map[i];
 		uint64_t newSz = sz + (align-block.addr%align);
                 if(block.len >= sz){
@@ -140,10 +151,18 @@ void* kmalloc_a(uint64_t sz, int align) {
 			return (void*)addr;
                 }
         }
-	return -1;
+	return -1;*/
 }
 void* kmalloc_ap(uint64_t sz, int align, uint64_t *phys) {
-        for(uint64_t i = 0; i < size-1; i++){
+        if(kernel_end % align > 0){
+                kernel_end += align-(kernel_end % align);
+        }
+        uint64_t tmp = kernel_end;
+        phys = tmp;
+	kernel_end += sz;
+        return tmp;
+
+	/*for(uint64_t i = 0; i < size-1; i++){
                 memory_block_t block = map[i];
                 uint64_t newSz = sz + (align-block.addr%align);
                 if(block.len >= sz){
@@ -154,6 +173,6 @@ void* kmalloc_ap(uint64_t sz, int align, uint64_t *phys) {
                         return (void*)addr;
                 }
         }
-        return -1;
+        return -1;*/
 
 }

@@ -3,6 +3,7 @@ ENTRY(_start)
 SECTIONS{
 	. = 0x100000;
 	_kernel_low_start = .;
+	_ro_start = .;
 	.low_text BLOCK(4K) : ALIGN(4K){
 		*(.multiboot)
 		*(.low_text)
@@ -25,6 +26,7 @@ SECTIONS{
 	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xFFFFFFFFC0000000){
 		*(.rodata)
 	}
+	_ro_end = .;
 	.data ALIGN (4K) : AT (ADDR (.data) - 0xFFFFFFFFC0000000){
 		*(.data)
 	}
