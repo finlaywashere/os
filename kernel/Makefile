@@ -12,7 +12,19 @@ EXEC_PREFIX?=$(PREFIX)
 BOOTDIR?=$(EXEC_PREFIX)/boot
 INCLUDEDIR?=$(PREFIX)/include
 
-CFLAGS:=$(CFLAGS) -mcmodel=kernel -ffreestanding -Wall -Wextra -mno-sse -mno-sse2 -mno-mmx -mno-red-zone
+CFLAGS:=$(CFLAGS) -g -fno-pic               \
+    -F dwarf			   \
+    -z max-page-size=0x1000        \
+    -mno-sse                       \
+    -mno-sse2                      \
+    -mno-mmx                       \
+    -mno-80387                     \
+    -mno-red-zone                  \
+    -mcmodel=kernel                \
+    -ffreestanding                 \
+    -fno-stack-protector           \
+    -fno-omit-frame-pointer        \
+    -Wall
 CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude
 LDFLAGS:=$(LDFLAGS)
 LIBS:=$(LIBS) -nostdlib -lgcc
@@ -50,7 +62,7 @@ $(LIBS)
 all: os.kernel
  
 os.kernel: $(OBJS) $(ARCHDIR)/linker.ld
-	$(CC) -T $(ARCHDIR)/linker.ld -z max-page-size=0x1000 -o $@ $(CFLAGS) $(LINK_LIST)
+	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
 	grub-file --is-x86-multiboot os.kernel
  
 .c.o:
