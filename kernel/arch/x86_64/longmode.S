@@ -10,7 +10,7 @@ section .bss
 align 4096
 ; Sets up the stack for the kernel
 stack_bottom:
-resb 0xF0000 ; 960KiB
+resb 0x10000 ; 1MiB
 stack_top:
 
 section .text
