@@ -121,14 +121,14 @@ void init_paging(){
 	asm ("mov %%cr3, %0": "=r"(cr3));
 	boot_directory = cr3;
 	
-	active_directory = palloc();
+	active_directory = boot_directory;//palloc();
 	uint64_t max_mem = total_memory()*0x100000;
 	mapPages(0x0,0xFFFFFFFFC0000000,1<<1,max_mem);
 	
 	offset = 0xFFFFFFFFC0000000;
 	
-	asm __volatile__("mov %0, %%cr3\n\t" : : "a" (active_directory) : "%rax");
+	//asm __volatile__("mov %0, %%cr3\n\t" : : "a" (active_directory) : "%rax");
 	
-	//active_directory = (page_directory_t*)((uint64_t)active_directory | 0xFFFFFFFFC0000000);
-	//active_directory->tables[0] = 0x0;
+	active_directory = (page_directory_t*)((uint64_t)active_directory | 0xFFFFFFFFC0000000);
+	active_directory->tables[0] = 0x0;
 }

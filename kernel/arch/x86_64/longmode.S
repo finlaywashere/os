@@ -7,9 +7,10 @@ long_mode_start:
 	jmp rax
 
 section .bss
+align 4096
 ; Sets up the stack for the kernel
 stack_bottom:
-resb 0x100000 ; 1MiB
+resb 0xF0000 ; 960KiB
 stack_top:
 
 section .text

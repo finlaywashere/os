@@ -2,7 +2,7 @@
 
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
-uint16_t *VGA_MEMORY = (uint16_t*) 0xFFFFFFFFC00B8000;
+static const uint16_t *VGA_MEMORY = (uint16_t*) 0xFFFFFFFFC00B8000;
 
 void set_vga(uint16_t *VGA){
 	VGA_MEMORY = VGA;
@@ -11,7 +11,7 @@ void set_vga(uint16_t *VGA){
 static size_t terminal_row;
 static size_t terminal_column;
 static uint8_t terminal_colour;
-static uint16_t *terminal_buffer;
+uint16_t *terminal_buffer;
 
 void terminal_initialize() {
 	terminal_row = 0;
