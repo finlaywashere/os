@@ -12,8 +12,7 @@ EXEC_PREFIX?=$(PREFIX)
 BOOTDIR?=$(EXEC_PREFIX)/boot
 INCLUDEDIR?=$(PREFIX)/include
 
-CFLAGS:=$(CFLAGS) -g -fno-pic               \
-    -F dwarf			   \
+CFLAGS:=$(CFLAGS) -fno-pic               \
     -z max-page-size=0x1000        \
     -mno-sse                       \
     -mno-sse2                      \

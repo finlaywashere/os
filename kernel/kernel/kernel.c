@@ -26,22 +26,22 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("\n");
 	init_idt();
 	terminal_writestring("Successfully initialized IDT\n");
-	init_pmm_base(mbd);
+	//init_pmm_base(mbd);
         terminal_writestring("Successfully initialized PMM base\n");
 	init_pmm(mbd);
 	terminal_writestring("Successfully initialized PMM full\n");
 	init_paging();
 	terminal_writestring("Successfully initialized paging\n");
-	init_timer();
+	//init_timer();
 	terminal_writestring("Successfully initialized PIT\n");
-	init_keyboard();
+	//init_keyboard();
 	terminal_writestring("Successfully initialized keyboard\n");
-	init_pci();
+	//init_pci();
 	terminal_writestring("Successfully initialized PCI\n");
-	init_ahci();
+	//init_ahci();
 	terminal_writestring("Successfully initialized AHCI\n");
-	init_echfs();
-	echfs_setup_fs_map();
+	//init_echfs();
+	//echfs_setup_fs_map();
 	terminal_writestring("Successfully initialized ECHFS!\n");
 	while(1){
 		// Kernel loop

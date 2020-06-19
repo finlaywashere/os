@@ -216,7 +216,6 @@ _start:
 	call enable_paging
 
 	lgdt [GDT64.Pointer]
-	
-	extern long_mode_start
-	jmp GDT64.Code:long_mode_start
 
+	extern long_mode_start	
+	jmp GDT64.Code:long_mode_start

@@ -8,25 +8,27 @@ SECTIONS{
 		*(.multiboot)
 		*(.low_text)
 	}
+	.low_rodata BLOCK(4K) : ALIGN(4K){
+                *(.low_rodata);
+        }
+	_ro_end = .;
 	.low_data BLOCK(4K) : ALIGN(4K){
 		*(.low_data);
 	}
 	.low_bss BLOCK(4K) : ALIGN(4K){
 		*(.low_bss);
 	}
-	.low_rodata BLOCK(4K) : ALIGN(4K){
-		*(.low_rodata);
-	}
 	_kernel_low_end = .;
 	. = 0xFFFFFFFFC0200000;
 	_kernel_virtual_start = .;
+	_ro2_start = .;
 	.text ALIGN (4K) : AT (ADDR (.text) - 0xFFFFFFFFC0000000){
 		*(.text)
 	}
 	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xFFFFFFFFC0000000){
 		*(.rodata)
 	}
-	_ro_end = .;
+	_ro2_end = .;
 	.data ALIGN (4K) : AT (ADDR (.data) - 0xFFFFFFFFC0000000){
 		*(.data)
 	}
