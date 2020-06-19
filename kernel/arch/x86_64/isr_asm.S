@@ -35,6 +35,12 @@ load_idt:
 	lidt [idt_ptr]
 	call enableInterrupts
 	ret
+global load_gdt
+extern gdt_ptr;
+load_gdt:
+	cli
+	lgdt [gdt_ptr]
+	ret
 extern isr_handler
 isr_common:
 	pushAll

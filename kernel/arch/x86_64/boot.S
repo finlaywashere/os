@@ -23,12 +23,7 @@ p3_table_2:
 	resb 4096
 p2_table:
 	resb 4096
-p1_table:
-	resb 4096
-p1_table_2:
-	resb 4096
-p1_table_3:
-	resb 4096
+global GDT64
 ; 64 bit GDT stuff
 GDT64:                           ; Global Descriptor Table (64-bit).
     .Null: equ $ - GDT64         ; The null descriptor.
@@ -52,6 +47,20 @@ GDT64:                           ; Global Descriptor Table (64-bit).
     db 10010010b                 ; Access (read/write).
     db 00000000b                 ; Granularity.
     db 0                         ; Base (high).
+    .UserCode: equ $ - GDT64
+    dw 0
+    dw 0
+    db 0
+    db 11111010b
+    db 10101111b                 ; Granularity, 64 bits flag, limit19:16.
+    db 0
+    .UserData: equ $ - GDT64
+    dw 0
+    dw 0
+    db 0
+    db 11110010b
+    db 00000000b
+    db 0
     .Pointer:                    ; The GDT-pointer.
     dw $ - GDT64 - 1             ; Limit.
     dq GDT64                     ; Base.
@@ -128,57 +137,17 @@ set_up_page_tables:
 	mov [p3_table_1+511*8], eax
 	mov [p3_table_2], eax
 	
-	; map first P2 entry to P1
-	mov eax, p1_table
-	or eax, 0b11 ; Present and writable
-	mov [p2_table], eax
-	
-	; map 2nd P2 entry to second P1
-	mov eax, p1_table_2
-	or eax, 0b11 ; Present and writable
-	mov [p2_table + 8], eax
-	
-	; map 3rd P2 entry to 3rd P1
-	mov eax, p1_table_3
-	or eax, 0b11
-	mov [p2_table + 16], eax
-	
 	mov ecx, 0 ; counter
-.map_p1_table:
+.map_p2_table:
 	; map ecx-th P1 entry to a page at address 4KiB*ecx
-	mov eax, 0x1000 ; 4KiB
+	mov eax, 0x200000 ; 2MiB
 	mul ecx ; start address of page
-	or eax,0b11 ; present, and writable
-	mov [p1_table + ecx*8], eax ; map entry
+	or eax,0b10000011 ; huge, present, and writable
+	mov [p2_table + ecx*8], eax ; map entry
 
 	inc ecx
-	cmp ecx, 512 ; if the counter is 512 then 2MiB is mapped
-	jne .map_p1_table ; else map some more
-	mov ecx, 0; counter
-.map_p1_table_2:
-	; map ecx-th P1 entry to a page at address 4KiB*ecx
-        mov eax, 0x1000 ; 4KiB
-        mul ecx ; start address of page
-        add eax, 0x200000 ; Add 2MiB
-	or eax,0b11 ; present, and writable
-        mov [p1_table_2 + ecx*8], eax ; map entry
-
-        inc ecx
-        cmp ecx, 512 ; if the counter is 512 then 2MiB is mapped
-        jne .map_p1_table_2 ; else map some more
-        mov ecx, 0; counter
-.map_p1_table_3:
-	; map ecx-th P1 entry to a page at address 4KiB*ecx
-        mov eax, 0x1000 ; 4KiB
-        mul ecx ; start address of page
-        add eax, 0x400000 ; Add 4MiB
-        or eax,0b11 ; present, and writable
-        mov [p1_table_3 + ecx*8], eax ; map entry
-
-        inc ecx
-        cmp ecx, 512 ; if the counter is 512 then 2MiB is mapped
-        jne .map_p1_table_3 ; else map some more
-        mov ecx, 0; counter
+	cmp ecx, 511 ; if the counter is 511 then 1GiB is mapped
+	jne .map_p2_table ; else map some more
 
 	ret
 enable_paging:
@@ -205,7 +174,7 @@ enable_paging:
 	ret
 global _start
 _start:
-	
+	cli
 	mov edi,ebx ; Move multiboot header to edi
 
 	call check_multiboot
