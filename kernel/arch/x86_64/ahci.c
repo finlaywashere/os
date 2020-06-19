@@ -20,7 +20,7 @@ int check_type(HBA_PORT *port){
 int probe_port(HBA_MEM *mem, int portno){
 	uint32_t pi = mem->pi;
 	if(pi >> portno & 0x1 == 1){
-		return check_type(&mem->ports[portno]);
+		return check_type((HBA_PORT*)((uint64_t)&mem->ports[portno]|0xffff800000000000));
 	}
 	return 0;
 }
@@ -45,13 +45,13 @@ int read(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint1
 	int slot = find_cmdslot(port);
 	if(slot == -1)
 		return 1;
-	HBA_CMD_HEADER *cmdheader = (HBA_CMD_HEADER*)port->clb;
+	HBA_CMD_HEADER *cmdheader = (HBA_CMD_HEADER*)((uint64_t)port->clb|0xffff800000000000);
 	cmdheader+=slot;
 	cmdheader->cfl = sizeof(FIS_REG_H2D)/sizeof(uint32_t);
 	cmdheader->w = 0; // Read from device
 	cmdheader->prdtl = (uint16_t)((count-1)>>4) + 1; //PRDT entries count
 	
-	HBA_CMD_TBL *cmdtbl = (HBA_CMD_TBL*)(cmdheader->ctba);
+	HBA_CMD_TBL *cmdtbl = (HBA_CMD_TBL*)((uint64_t)cmdheader->ctba|0xffff800000000000);
 	memset(cmdtbl,0,sizeof(HBA_CMD_TBL)+(cmdheader->prdtl-1)*sizeof(HBA_PRDT_ENTRY));
 	for(int i = 0; i < cmdheader->prdtl-1; i++){ //8K bytes, 16 sectors, per PRDT
 		cmdtbl->prdt_entry[i].dba = (uint32_t) buf;
@@ -66,7 +66,7 @@ int read(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint1
 	cmdtbl->prdt_entry[i].i = i;
 	
 	//Setup command
-	FIS_REG_H2D *cmdfis = (FIS_REG_H2D*)(&cmdtbl->cfis);
+	FIS_REG_H2D *cmdfis = (FIS_REG_H2D*)((uint64_t)&cmdtbl->cfis|0xffff800000000000);
 	
 	cmdfis->fis_type = FIS_TYPE_REG_H2D;
 	cmdfis->c = 1; //Command
@@ -115,7 +115,7 @@ int write(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint
 	int slot = find_cmdslot(port);
 	if(slot == -1)
 		return 1;
-	HBA_CMD_HEADER *cmdheader = (HBA_CMD_HEADER*)port->clb;
+	HBA_CMD_HEADER *cmdheader = (HBA_CMD_HEADER*)((uint64_t)port->clb|0xffff800000000000);
         cmdheader+=slot;
         cmdheader->cfl = sizeof(FIS_REG_H2D)/sizeof(uint32_t);
         cmdheader->w = 1; // Write to device
@@ -124,7 +124,7 @@ int write(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint
 	//8K bytes per PRDT
         cmdheader->prdtl = (uint16_t)((count-1)>>4) + 1; //PRDT entries count
 	
-	HBA_CMD_TBL *cmdtbl = (HBA_CMD_TBL*)(cmdheader->ctba);
+	HBA_CMD_TBL *cmdtbl = (HBA_CMD_TBL*)((uint64_t)cmdheader->ctba|0xffff800000000000);
         memset(cmdtbl,0,sizeof(HBA_CMD_TBL)+(cmdheader->prdtl-1)*sizeof(HBA_PRDT_ENTRY));
         for(int i = 0; i < cmdheader->prdtl-1; i++){ //8K bytes, 16 sectors, per PRDT
                 cmdtbl->prdt_entry[i].dba = (uint32_t) buf;
@@ -138,7 +138,7 @@ int write(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint
         cmdtbl->prdt_entry[i].dbc = (count<<9)-1; //512 bytes per sector
         cmdtbl->prdt_entry[i].i = i;
 	
-	FIS_REG_H2D *cmdfis = (FIS_REG_H2D*)(&cmdtbl->cfis);
+	FIS_REG_H2D *cmdfis = (FIS_REG_H2D*)((uint64_t)&cmdtbl->cfis|0xffff800000000000);
 	cmdfis->fis_type = FIS_TYPE_REG_H2D;
 	cmdfis->c = 1; //Command
 	cmdfis->command = ATA_CMD_WRITE_DMA_EX;
@@ -183,7 +183,7 @@ int write(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint
 }
 HBA_MEM *mem = 0;
 HBA_PORT *getPort(int index){
-	return &mem->ports[index];
+	return (HBA_PORT*)((uint64_t)&mem->ports[index]|0xffff800000000000);
 }
 
 void init_ahci(){
@@ -196,8 +196,7 @@ void init_ahci(){
 		controller = function;
 		break;
 	}
-	mapPages(controller.bar5,controller.bar5,1<<1,sizeof(HBA_MEM)+sizeof(HBA_PORT)*32);
-	mem = (uint64_t) controller.bar5+get_phys_base();
+	mem = (uint64_t) controller.bar5|0xffff800000000000;
 	
 	terminal_writestring("Cap: 0x");
 	terminal_writeint(mem->cap,16);
@@ -217,20 +216,14 @@ void init_ahci(){
 			terminal_writeint(i,16);
 			terminal_writestring("\n");
 			
-			HBA_PORT* port = &mem->ports[i];
-			if(!isMapped(port->clbu<<32|port->clb))
-				mapPages(port->clbu<<32|port->clb,port->clbu<<32|port->clb,1<<1,sizeof(HBA_CMD_HEADER)*32);
-			if(!isMapped(port->fbu<<32|port->fb))
-				mapPage(port->fbu<<32|port->fb,port->fbu<<32|port->fb,1<<1);
+			HBA_PORT* port = (HBA_PORT*)((uint64_t)&mem->ports[i]|0xffff800000000000);
 			// Command table offset: 40K + 8K*portno
 			// Command table size = 256*32 = 8K per port
-			HBA_CMD_HEADER *cmdheader = (HBA_CMD_HEADER*)(port->clb);
+			HBA_CMD_HEADER *cmdheader = (HBA_CMD_HEADER*)((uint64_t)port->clb|0xffff800000000000);
 			for (int i=0; i<32; i++){
 				cmdheader[i].prdtl = 8;	// 8 prdt entries per command table
 				// 256 bytes per command table, 64+16+48+16*8
 				// Command table offset: 40K + 8K*portno + cmdheader_index*256
-				if(!isMapped(cmdheader[i].ctbau<<32|cmdheader[i].ctba))
-					mapPage(cmdheader[i].ctbau<<32|cmdheader[i].ctba,cmdheader[i].ctbau<<32|cmdheader[i].ctba,1<<1);
 			}
 			
 			activePorts[curr] = i;	

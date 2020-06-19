@@ -19,20 +19,20 @@ SECTIONS{
 		*(.low_bss);
 	}
 	_kernel_low_end = .;
-	. = 0xFFFFFFFFC0200000;
+	. += 0xFFFFFFFF80000000;
 	_kernel_virtual_start = .;
 	_ro2_start = .;
-	.text ALIGN (4K) : AT (ADDR (.text) - 0xFFFFFFFFC0000000){
+	.text ALIGN (4K) : AT (ADDR (.text) - 0xFFFFFFFF80000000){
 		*(.text)
 	}
-	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xFFFFFFFFC0000000){
+	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xFFFFFFFF80000000){
 		*(.rodata)
 	}
 	_ro2_end = .;
-	.data ALIGN (4K) : AT (ADDR (.data) - 0xFFFFFFFFC0000000){
+	.data ALIGN (4K) : AT (ADDR (.data) - 0xFFFFFFFF80000000){
 		*(.data)
 	}
-	.bss ALIGN (4K) : AT (ADDR (.bss) - 0xFFFFFFFFC0000000){
+	.bss ALIGN (4K) : AT (ADDR (.bss) - 0xFFFFFFFF80000000){
 		*(COMMON)
 		*(.bss)
 	}

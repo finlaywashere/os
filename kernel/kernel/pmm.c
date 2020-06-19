@@ -3,7 +3,7 @@
 #include <kernel/string.h>
 #include <arch/x86_64/tty.h>
 
-#define KERNEL_VMA 0xFFFFFFFFC0000000
+#define KERNEL_VMA 0xffff800000000000
 
 extern uint64_t _kernel_virtual_end;
 extern uint64_t _kernel_virtual_start;

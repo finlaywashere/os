@@ -1,4 +1,4 @@
-[bits 64]
+bits 64
 %macro pushAll 0
 	push rax
 	push rcx
