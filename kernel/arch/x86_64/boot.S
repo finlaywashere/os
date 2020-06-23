@@ -21,6 +21,8 @@ p3_table:
 	resb 4096
 p3_table_2:
 	resb 4096
+p3_table_3:
+	resb 4096
 p2_table:
 	resb 4096
 p2_table_2:
@@ -133,34 +135,38 @@ set_up_page_tables:
 	; map first P4 entry to P3 table
 	mov eax, p3_table
 	or eax, 0b11 ; Present and writable
-	mov [p4_table+511*8], eax
 	mov [p4_table], eax
 
 	mov eax, p3_table_2
 	or eax, 0b11
 	mov [p4_table+256*8], eax
-
+	
+	mov eax, p3_table_3
+        or eax, 0b11
+        mov [p4_table+511*8], eax
+	
 	; map first P3 entry to P2
 	mov eax, p2_table
 	or eax, 0b11 ; present and writable
 	mov [p3_table], eax
 	mov [p3_table_2], eax
-
-	mov eax, p2_table_3
-	or eax, 0b11
-	mov [p3_table], eax
-
-	mov eax, p2_table_4
-	or eax, 0b11
-	mov [p3_table], eax
+	mov [p3_table_3+510*8], eax
 	
-	mov eax, p2_table_5
-	or eax, 0b11
-	mov [p3_table], eax
+	;mov eax, p2_table_3
+	;or eax, 0b11
+	;mov [p3_table], eax
+
+	;mov eax, p2_table_4
+	;or eax, 0b11
+	;mov [p3_table], eax
 	
-	mov eax, p2_table_2
-	or eax, 0b11 ; present and writable
-	mov [p3_table+510*8], eax
+	;mov eax, p2_table_5
+	;or eax, 0b11
+	;mov [p3_table], eax
+	
+	;mov eax, p2_table_2
+	;or eax, 0b11 ; present and writable
+	;mov [p3_table+510*8], eax
 		
 	mov ecx, 0 ; counter
 .map_p2_table:
