@@ -152,17 +152,17 @@ set_up_page_tables:
 	mov [p3_table_2], eax
 	mov [p3_table_3+510*8], eax
 	
-	;mov eax, p2_table_3
-	;or eax, 0b11
-	;mov [p3_table], eax
+	mov eax, p2_table_3
+	or eax, 0b11
+	mov [p3_table_2+8], eax
 
-	;mov eax, p2_table_4
-	;or eax, 0b11
-	;mov [p3_table], eax
+	mov eax, p2_table_4
+	or eax, 0b11
+	mov [p3_table_2+16], eax
 	
-	;mov eax, p2_table_5
-	;or eax, 0b11
-	;mov [p3_table], eax
+	mov eax, p2_table_5
+	or eax, 0b11
+	mov [p3_table_2+24], eax
 	
 	;mov eax, p2_table_2
 	;or eax, 0b11 ; present and writable
@@ -175,40 +175,31 @@ set_up_page_tables:
 	mul ecx ; start address of page
 	or eax,0b10000011 ; huge, present, and writable
 	mov [p2_table + ecx*8], eax ; map entry
-
+	
+	add eax, 0x40000000 ; Add 1G
+	mov [p2_table_3 + ecx*8], eax ; map entry
+	
+	add eax, 0x40000000 ; Add a total of 2G
+	mov [p2_table_4 + ecx*8], eax ; map entry
+	
+	add eax, 0x40000000 ; Add a total of 3G
+	mov [p2_table_5 + ecx*8], eax ; map entry
+	
 	inc ecx
-	cmp ecx, 511 ; if the counter is 511 then 1GiB is mapped
+	cmp ecx, 512 ; if the counter is 511 then 1GiB is mapped
 	jne .map_p2_table ; else map some more
 	mov ecx, 0 ; counter
 .map_p2_table_2:
         ; map ecx-th P1 entry to a page at address 4KiB*ecx
-        mov eax, 0x200000 ; 2MiB
-        mul ecx ; start address of page
-        or eax,0b10000011 ; huge, present, and writable
-        mov [p2_table_2 + ecx*8], eax ; map entry
+        ;mov eax, 0x200000 ; 2MiB
+        ;mul ecx ; start address of page
+        ;or eax,0b10000011 ; huge, present, and writable
+        ;mov [p2_table_2 + ecx*8], eax ; map entry
 
         inc ecx
         cmp ecx, 15 ; if the counter is 15 then 30MiB is mapped
         jne .map_p2_table_2 ; else map some more
 	
-	mov ecx, 0 ; counter
-.map_p2_tables:
-	; map ecx-th P1 entry to a page at address 4KiB*ecx
-        mov eax, 0x200000 ; 2MiB
-        mul ecx ; start address of page
-	add eax, 40000000 ; Add 1G
-        or eax,0b10000011 ; huge, present, and writable
-        mov [p2_table_3 + ecx*8], eax ; map entry
-
-	add eax, 40000000 ; Now 2G is added
-	mov [p2_table_4 + ecx*8], eax ; map entry
-
-	add eax, 40000000 ; Now 3G is added
-        mov [p2_table_5 + ecx*8], eax ; map entry
-        inc ecx
-        cmp ecx, 15 ; if the counter is 15 then 30MiB is mapped
-        jne .map_p2_tables ; else map some more
-
 	ret
 enable_paging:
 	; load P4 to the cr3 register
