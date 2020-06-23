@@ -2,7 +2,7 @@
 #include <arch/x86_64/io.h>
 #include <kernel/string.h>
 
-pci_bus_t *busses;
+pci_bus_t busses[256];
 
 uint16_t pciConfigReadWord(uint8_t bus, uint8_t device, uint8_t function,
 		uint8_t offset) {
@@ -201,8 +201,8 @@ pci_device_result_t* findPCIDevicesByClass(uint8_t class) {
 }
 
 void init_pci() {
-	busses = (pci_bus_t*)kmalloc_p(sizeof(pci_bus_t) * 256);
-	memset(busses, 0, sizeof(pci_bus_t) * 256);
+	//busses = kmalloc_p(sizeof(pci_bus_t) * 256);
+	//memset(busses, 0, sizeof(pci_bus_t) * 256);
 	init_pci_bus(0);
 	for (int i = 0; i < 10; i++) {
 		pci_device_t *device = busses[0].devices[i];

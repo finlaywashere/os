@@ -23,7 +23,7 @@ uint64_t get_page_phys_base(){
 	return page_base-KERNEL_VMA;
 }
 uint64_t get_phys_base(){
-	return 0xffffffff80000000;
+	return 0xffff800000000000;
 }
 uint64_t get_kernel_end(){
 	return kernel_end;
@@ -71,12 +71,9 @@ void init_pmm(multiboot_info_t *mbd) {
 					len -= amount;
 					addr += amount;
 				}
-				len = len - (kernel_phys_end+0x10000-addr);
-				addr = kernel_end + 0x10000;
+				map[curr].addr = addr | get_phys_base();
+				map[curr].len = len;
 			}
-			map[curr].addr = addr;
-			map[curr].len = len;
-			
 			curr++;
 		}
 		entry = (multiboot_memory_map_t*) ((unsigned int) entry + entry->size

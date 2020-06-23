@@ -9,7 +9,7 @@ void* kmalloc_page(uint64_t sz, int align){
 void* kmalloc_p(uint64_t sz){
 	uint64_t pointer = kmalloc(sz);
 	mapPages(pointer-get_phys_base(),pointer,1<<1,sz);
-	return (void*)pointer;
+	return pointer;
 }
 void* kmalloc_pa(uint64_t sz, int align){
 	uint64_t pointer = kmalloc_a(sz,align);
