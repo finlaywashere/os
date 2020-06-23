@@ -55,12 +55,21 @@ void echfs_setup_fs_map(){
         }
 
 }
-directory_entry_t *getFile(char* name){
-	int countDelim = count(name,'/');
-	
+uint64_t getFile(char* name){
+	for(uint64_t i = 0; i < root_size; i++){
+		directory_entry_t entry = root_directory_entries[i];
+		if(entry.name[0] != 0){
+			if(strcmp(&entry.name,name) == 0){
+				return i;
+			}
+		}
+	}
+	return -1;
 }
-uint8_t *readFile(directory_entry_t *file){
-	uint8_t *file_buf = kmalloc_p(file->fileSize);
+directory_entry_t* getFileById(uint64_t id){
+	return &root_directory_entries[id];
+}
+uint8_t *readFile(directory_entry_t *file,uint8_t *file_buf){
 	uint64_t sector = file->startBlock;
 	HBA_PORT *port = getPort(0);
 	int curr = 0;

@@ -50,4 +50,4 @@ struct elf_program_header{
 	uint64_t sizeInMemory;
 	uint64_t align;
 }__attribute__((packed));
-typedef struct elf_header elf_header_t;
+typedef struct elf_program_header elf_program_header_t;

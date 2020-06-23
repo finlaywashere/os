@@ -27,5 +27,5 @@ uint64_t virtual_to_physical(uint64_t virtual);
 uint64_t tableToAddr(uint64_t entry);
 uint64_t tableToMapping(uint64_t entry);
 uint64_t mapTable(uint64_t entry);
-
+uint64_t toPhysical(uint64_t virtual);
 

@@ -26,7 +26,7 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("\n");
 	init_gdt();
 	terminal_writestring("Successfully initialized GDT\n");
-	init_idt();
+	//init_idt();
 	terminal_writestring("Successfully initialized IDT\n");
 	init_pmm_base(mbd);
         terminal_writestring("Successfully initialized PMM base\n");
@@ -45,6 +45,9 @@ void kernel_main(multiboot_info_t* mbd){
 	init_echfs();
 	echfs_setup_fs_map();
 	terminal_writestring("Successfully initialized ECHFS!\n");
+	load_elf();
+	terminal_writestring("Successfully loaded ELF file from disk!\n");
+
 	while(1){
 		// Kernel loop
 	}

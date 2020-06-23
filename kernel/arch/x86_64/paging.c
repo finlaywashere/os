@@ -20,7 +20,7 @@ static inline void flush_tlb_single(unsigned long addr){
 void mapPages(uint64_t physical, uint64_t virtual, uint8_t flags, uint64_t size){
 	uint64_t numPages = size/PAGE_SIZE+1;
 	for(uint64_t i = 0; i < numPages; i++){
-		if(!isMapped(virtual+(PAGE_SIZE*i)))
+	//	if(!isMapped(virtual+(PAGE_SIZE*i)))
 			mapPage(physical+(PAGE_SIZE*i),virtual+(PAGE_SIZE*i),flags);
 	}
 }
@@ -100,6 +100,21 @@ uint64_t __attribute__ ((noinline)) tableToMapping(uint64_t entry){
 	uint64_t pointer = entry & 0xFFFFFFFFFFFFF000;
 	pointer |= offset;
 	return pointer;
+}
+uint64_t toPhysical(uint64_t virtual){
+	uint64_t p4_index = virtual >> 39 & 0b111111111;
+        uint64_t p3_index = virtual >> 30 & 0b111111111;
+        uint64_t p2_index = virtual >> 21 & 0b111111111;
+
+        page_3_table_t* p3_table = (page_3_table_t*) tableToMapping(active_directory->tables[p4_index]);
+        if(p3_table == 0){
+                return -1;
+        }
+        page_2_table_t* p2_table = (page_2_table_t*) tableToMapping(p3_table->entries[p3_index]);
+        if(p2_table == 0){
+                return -1;
+        }
+	return p2_table->entries[p2_index] & 0xFFFFFFFFFFFFF000;
 }
 void init_paging(){
 	uint64_t cr3;
