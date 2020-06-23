@@ -34,6 +34,7 @@ void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
 	//if((physical > &_ro_start && physical < &_ro_end) || (virtual > &_ro2_start && virtual < &_ro2_end)){
 	//	flags = 1 | (1 << 7);
 	//}
+	physical &= 0b1111111111111111111111111111111111111111111000000000000000000000;
 	uint64_t p4_index = (virtual >> 39) & 0b111111111;
 	uint64_t p3_index = (virtual >> 30) & 0b111111111;
 	uint64_t p2_index = (virtual >> 21) & 0b111111111;

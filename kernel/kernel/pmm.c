@@ -3,7 +3,7 @@
 #include <kernel/string.h>
 #include <arch/x86_64/tty.h>
 
-#define KERNEL_VMA 0xffff800000000000
+#define KERNEL_VMA 0xffffffff80000000
 
 extern uint64_t _kernel_virtual_end;
 extern uint64_t _kernel_virtual_start;
@@ -23,7 +23,7 @@ uint64_t get_page_phys_base(){
 	return page_base-KERNEL_VMA;
 }
 uint64_t get_phys_base(){
-	return KERNEL_VMA;
+	return 0xffffffff80000000;
 }
 uint64_t get_kernel_end(){
 	return kernel_end;
@@ -50,7 +50,7 @@ uint64_t total_memory(){
 	return max_mem;
 }
 void init_pmm(multiboot_info_t *mbd) {
-	/*map = (memory_block_t*)kernel_end;
+	map = (memory_block_t*)kernel_end;
 	multiboot_memory_map_t *entry = mbd->mmap_addr;
 	uint64_t curr = 0;
 	while (entry < mbd->mmap_addr + mbd->mmap_length) {
@@ -65,13 +65,13 @@ void init_pmm(multiboot_info_t *mbd) {
 			uint64_t len = ((uint64_t) len_high) << 32 | len_low;
 			
 			// If the address is less than 64KiB plus the kernel end (stack + safety buffer)
-			if(addr < kernel_phys_end + 0x10000){
-				if(size < (size - (kernel_phys_end+0x10000-addr))){
-					entry = (multiboot_memory_map_t*) ((unsigned int) entry + entry->size
-                                + sizeof(entry->size));
-					continue;
+			if(addr > kernel_phys_end + 0x10000 || addr + len > kernel_phys_end + 0x10000){
+				if(addr + len > kernel_phys_end + 0x10000){
+					uint64_t amount = (kernel_phys_end+0x10000)-addr;
+					len -= amount;
+					addr += amount;
 				}
-				size = size - (kernel_phys_end+0x10000-addr);
+				len = len - (kernel_phys_end+0x10000-addr);
 				addr = kernel_end + 0x10000;
 			}
 			map[curr].addr = addr;
@@ -114,14 +114,13 @@ void init_pmm(multiboot_info_t *mbd) {
 		}
 	}
 	size++;
-	kernel_end += size*sizeof(memory_block_t);*/
+	kernel_end += size*sizeof(memory_block_t);
 }
 
 void* kmalloc(uint64_t sz) {
-	uint64_t tmp = kernel_end;
-	kernel_end += sz;
-	return tmp;
-	/*
+	//uint64_t tmp = kernel_end;
+	//kernel_end += sz;
+	//return tmp;
 	for(uint64_t i = 0; i < size-1; i++){
 		memory_block_t block = map[i];
 		if(block.len >= sz){
@@ -131,17 +130,17 @@ void* kmalloc(uint64_t sz) {
 			return (void*) addr;
 		}
 	}
-	return -1;*/
+	return -1;
 }
 void* kmalloc_a(uint64_t sz, int align) {
-	if(kernel_end % align > 0){
-		kernel_end += align-(kernel_end % align);
-	}
-	uint64_t tmp = kernel_end;
-	kernel_end += sz;
-	return tmp;
+	//if(kernel_end % align > 0){
+	//	kernel_end += align-(kernel_end % align);
+	//}
+	//uint64_t tmp = kernel_end;
+	//kernel_end += sz;
+	//return tmp;
 	
-	/*for(uint64_t i = 0; i < size-1; i++){
+	for(uint64_t i = 0; i < size-1; i++){
                 memory_block_t block = map[i];
 		uint64_t newSz = sz + (align-block.addr%align);
                 if(block.len >= sz){
@@ -151,18 +150,18 @@ void* kmalloc_a(uint64_t sz, int align) {
 			return (void*)addr;
                 }
         }
-	return -1;*/
+	return -1;
 }
 void* kmalloc_ap(uint64_t sz, int align, uint64_t *phys) {
-        if(kernel_end % align > 0){
-                kernel_end += align-(kernel_end % align);
-        }
-        uint64_t tmp = kernel_end;
-        phys = tmp;
-	kernel_end += sz;
-        return tmp;
+        //if(kernel_end % align > 0){
+        //        kernel_end += align-(kernel_end % align);
+        //}
+        //uint64_t tmp = kernel_end;
+        //phys = tmp;
+	//kernel_end += sz;
+        //return tmp;
 
-	/*for(uint64_t i = 0; i < size-1; i++){
+	for(uint64_t i = 0; i < size-1; i++){
                 memory_block_t block = map[i];
                 uint64_t newSz = sz + (align-block.addr%align);
                 if(block.len >= sz){
@@ -173,6 +172,6 @@ void* kmalloc_ap(uint64_t sz, int align, uint64_t *phys) {
                         return (void*)addr;
                 }
         }
-        return -1;*/
+        return -1;
 
 }

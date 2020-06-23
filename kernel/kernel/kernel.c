@@ -19,6 +19,7 @@ void panic(char *message){
 }
 
 void kernel_main(multiboot_info_t* mbd){
+	mbd = (multiboot_info_t*) (((uint64_t)mbd)+0xffff800000000000);
 	terminal_initialize();
 	terminal_writestring("Successfully booted with ");
 	char* bootloaderName = (void*) (uint64_t) mbd->boot_loader_name;
