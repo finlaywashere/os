@@ -26,7 +26,7 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("\n");
 	init_gdt();
 	terminal_writestring("Successfully initialized GDT\n");
-	//init_idt();
+	init_idt();
 	terminal_writestring("Successfully initialized IDT\n");
 	init_pmm_base(mbd);
         terminal_writestring("Successfully initialized PMM base\n");

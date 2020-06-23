@@ -19,12 +19,13 @@ section .text
 global start_higher_half
 start_higher_half:
 	mov rsp, stack_top ; Sets rsp to the stack top which grows downwards
-	;mov ax, 0
-	;mov ss, ax
-	;mov ds, ax
-	;mov es, ax
-	;mov fs, ax
-	;mov gs, ax
+	mov ax, 16
+	mov ds, ax ; set data segment to kernel data
+	mov ax, 0
+	mov ss, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
 
 	push rdi ; Push the multiboot header
 
