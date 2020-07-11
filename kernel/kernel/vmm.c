@@ -1,6 +1,6 @@
 #include <arch/x86_64/paging.h>
 #include <kernel/pmm.h>
-
+#include <stddef.h>
 void* kmalloc_page(uint64_t sz, int align){
 	uint64_t pointer = kmalloc_pag(sz, align);
 	mapPages(pointer-get_phys_base(),pointer,1<<1,sz);
@@ -9,7 +9,7 @@ void* kmalloc_page(uint64_t sz, int align){
 void* kmalloc_p(uint64_t sz){
 	uint64_t pointer = kmalloc(sz);
 	mapPages(pointer-get_phys_base(),pointer,1<<1,sz);
-	return pointer;
+	return (void*)(size_t)pointer;
 }
 void* kmalloc_pa(uint64_t sz, int align){
 	uint64_t pointer = kmalloc_a(sz,align);

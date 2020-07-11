@@ -27,7 +27,7 @@ pci_device_function_t* getFunction(uint8_t bus, uint8_t device,
 	uint16_t vendorID = pciConfigReadWord(bus, device, function, 0);
 	if (vendorID == 0xFFFF)
 		return 0x0;
-	pci_device_function_t *ret_function = kmalloc_p(
+	pci_device_function_t *ret_function = (pci_device_function_t*) kmalloc_p(
 			sizeof(pci_device_function_t));
 	ret_function->vendorID = vendorID;
 	uint16_t deviceID = pciConfigReadWord(bus, device, function, 0x2);
