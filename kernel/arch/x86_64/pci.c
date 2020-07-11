@@ -1,6 +1,7 @@
 #include <arch/x86_64/pci.h>
 #include <arch/x86_64/io.h>
 #include <kernel/string.h>
+#include <kernel/vmm.h>
 
 pci_bus_t busses[256];
 

@@ -1,3 +1,4 @@
+#include <kernel/vmm.h>
 #include <arch/x86_64/paging.h>
 #include <kernel/pmm.h>
 #include <stddef.h>
