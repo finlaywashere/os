@@ -1,6 +1,7 @@
 #include <kernel/string.h>
 #include "arch/x86_64/tty.h"
 #include "kernel/pmm.h"
+#include "kernel/vmm.h"
 
 size_t strlen(const char* str) {
 	size_t len = 0;
