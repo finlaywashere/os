@@ -29,4 +29,6 @@ directory_entry_t *read_root_directory();
 uint8_t *readFile(directory_entry_t *file, uint8_t *file_buf);
 directory_entry_t *read_directory(directory_entry_t *dir, int index);
 void echfs_setup_fs_map();
+directory_entry_t* getFileById(uint64_t id);
+uint64_t getFile(char* name);
 

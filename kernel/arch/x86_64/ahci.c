@@ -40,6 +40,7 @@ int find_cmdslot(HBA_PORT *port){
 }
 
 int read(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf){
+	buf = ((uint64_t)buf) & ~0xffff800000000000;
 	port->is = (uint32_t) -1; // Clear interrupt bit
 	int spin = 0; // Timeout counter
 	int slot = find_cmdslot(port);
@@ -54,14 +55,16 @@ int read(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint1
 	HBA_CMD_TBL *cmdtbl = (HBA_CMD_TBL*)((uint64_t)cmdheader->ctba|0xffff800000000000);
 	memset(cmdtbl,0,sizeof(HBA_CMD_TBL)+(cmdheader->prdtl-1)*sizeof(HBA_PRDT_ENTRY));
 	for(int i = 0; i < cmdheader->prdtl-1; i++){ //8K bytes, 16 sectors, per PRDT
-		cmdtbl->prdt_entry[i].dba = (uint32_t)(((uint64_t) buf)-0xffffffff80000000);
+		cmdtbl->prdt_entry[i].dba = (uint32_t)buf;
+		cmdtbl->prdt_entry[i].dbau = ((uint64_t)buf) >> 32;
 		cmdtbl->prdt_entry[i].dbc = 8*1024-1; //8K bytes, this needs to be 8K minus 1
 		cmdtbl->prdt_entry[i].i = i;
 		buf += 4*1024; // 4K words
 		count -= 16; // 16 sectors
 	}
 	int i = cmdheader->prdtl-1;
-	cmdtbl->prdt_entry[i].dba = (uint32_t)(((uint64_t) buf)-0xffffffff80000000);
+	cmdtbl->prdt_entry[i].dba = (uint32_t)buf;
+	cmdtbl->prdt_entry[i].dbau = ((uint64_t)buf)>>32;
 	cmdtbl->prdt_entry[i].dbc = (count<<9)-1; //512 bytes per sector
 	cmdtbl->prdt_entry[i].i = i;
 	
@@ -110,6 +113,7 @@ int read(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint1
 	return 0;
 }
 int write(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf){
+	buf = ((uint64_t)buf) & ~0xffff800000000000;
 	port->is = -1;
 	int spin = 0; // Timeout counter
 	int slot = find_cmdslot(port);
@@ -127,14 +131,16 @@ int write(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint
 	HBA_CMD_TBL *cmdtbl = (HBA_CMD_TBL*)((uint64_t)cmdheader->ctba|0xffff800000000000);
         memset(cmdtbl,0,sizeof(HBA_CMD_TBL)+(cmdheader->prdtl-1)*sizeof(HBA_PRDT_ENTRY));
         for(int i = 0; i < cmdheader->prdtl-1; i++){ //8K bytes, 16 sectors, per PRDT
-                cmdtbl->prdt_entry[i].dba = (uint32_t)(((uint64_t) buf)-0xffffffff80000000);
+                cmdtbl->prdt_entry[i].dba = (uint32_t) buf;
+		cmdtbl->prdt_entry[i].dbau = ((uint64_t) buf) >> 32;
                 cmdtbl->prdt_entry[i].dbc = 8*1024-1; //8K bytes, this needs to be 8K minus 1
                 cmdtbl->prdt_entry[i].i = i;
                 buf += 4*1024; // 4K words
                 count -= 16; // 16 sectors
         }
         int i = cmdheader->prdtl-1;
-        cmdtbl->prdt_entry[i].dba = (uint32_t)(((uint64_t) buf)-0xffffffff80000000);
+        cmdtbl->prdt_entry[i].dba = (uint32_t) buf;
+	cmdtbl->prdt_entry[i].dbau = ((uint64_t) buf)>>32;
         cmdtbl->prdt_entry[i].dbc = (count<<9)-1; //512 bytes per sector
         cmdtbl->prdt_entry[i].i = i;
 	
