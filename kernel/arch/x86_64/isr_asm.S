@@ -1,3 +1,4 @@
+bits 64
 %macro pushAll 0
 	push rax
 	push rcx
@@ -33,6 +34,12 @@ extern idt_ptr;
 load_idt:
 	lidt [idt_ptr]
 	call enableInterrupts
+	ret
+global load_gdt
+extern gdt_ptr;
+load_gdt:
+	cli
+	lgdt [gdt_ptr]
 	ret
 extern isr_handler
 isr_common:
@@ -109,21 +116,22 @@ extern irq_handler
 
 irq_common_stub:
 	pushAll
-	mov ax, ds
-	push rax
-	mov ax, 0x10
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs,ax
+	;mov ax, ds
+	;push rax
+	;mov ax, 0x10
+	;mov ds, ax
+	;mov es, ax
+	;mov fs, ax
+	;mov gs,ax
 
+	cld
 	call irq_handler
 
-	pop rax
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
+	;pop rax
+	;mov ds, ax
+	;mov es, ax
+	;mov fs, ax
+	;mov gs, ax
 
 	popAll
 	add rsp, 16

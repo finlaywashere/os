@@ -1,12 +1,24 @@
 #include <kernel/string.h>
 #include "arch/x86_64/tty.h"
 #include "kernel/pmm.h"
+#include "kernel/vmm.h"
 
 size_t strlen(const char* str) {
 	size_t len = 0;
 	while (str[len])
 		len++;
 	return len;
+}
+int strcmp(char *str1, char* str2){
+	int str1Len = strlen(str1);
+	int str2Len = strlen(str2);
+	if(str1Len != str2Len)
+		return 1;
+	for(int i = 0; i < str1Len; i++){
+		if(str1[i] != str2[i])
+			return 1;
+	}
+	return 0;
 }
 
 void *memset(void* bufptr, int value, size_t size) {

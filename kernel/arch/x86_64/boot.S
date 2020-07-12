@@ -10,8 +10,8 @@ align 4
 	dd FLAGS
 	dd CHECKSUM
 bits 32
-; Sets up the stack for the kernel
-section .bss
+; Sets up the page tables for the kernel
+section .low_bss
 align 4096
 null_table:
 	resb 4096
@@ -19,17 +19,22 @@ p4_table:
 	resb 4096
 p3_table:
 	resb 4096
+p3_table_2:
+	resb 4096
+p3_table_3:
+	resb 4096
 p2_table:
 	resb 4096
-p1_table:
+p2_table_2:
 	resb 4096
-p1_table_2:
+p2_table_3:
 	resb 4096
-stack_bottom:
-resb 524288 ; 512KiB
-stack_top:
-
-section .rodata
+p2_table_4:
+	resb 4096
+p2_table_5:
+	resb 4096
+global GDT64
+; 64 bit GDT stuff
 GDT64:                           ; Global Descriptor Table (64-bit).
     .Null: equ $ - GDT64         ; The null descriptor.
     dw 0xFFFF                    ; Limit (low).
@@ -52,11 +57,25 @@ GDT64:                           ; Global Descriptor Table (64-bit).
     db 10010010b                 ; Access (read/write).
     db 00000000b                 ; Granularity.
     db 0                         ; Base (high).
+    .UserCode: equ $ - GDT64
+    dw 0
+    dw 0
+    db 0
+    db 11111010b
+    db 10101111b                 ; Granularity, 64 bits flag, limit19:16.
+    db 0
+    .UserData: equ $ - GDT64
+    dw 0
+    dw 0
+    db 0
+    db 11110010b
+    db 00000000b
+    db 0
     .Pointer:                    ; The GDT-pointer.
     dw $ - GDT64 - 1             ; Limit.
     dq GDT64                     ; Base.
 
-section .text
+section .low_text
 
 
 ; Prints `ERR: ` and the given error code to screen and hangs.
@@ -118,46 +137,69 @@ set_up_page_tables:
 	or eax, 0b11 ; Present and writable
 	mov [p4_table], eax
 
+	mov eax, p3_table_2
+	or eax, 0b11
+	mov [p4_table+256*8], eax
+	
+	mov eax, p3_table_3
+        or eax, 0b11
+        mov [p4_table+511*8], eax
+	
 	; map first P3 entry to P2
 	mov eax, p2_table
-	or eax, 0b11 ; Present and writable
+	or eax, 0b11 ; present and writable
 	mov [p3_table], eax
+	mov [p3_table_2], eax
+	mov [p3_table_3+510*8], eax
 	
-	; map first P2 entry to P1
-	mov eax, p1_table
-	or eax, 0b11 ; Present and writable
-	mov [p2_table], eax
-	
-	; map 2nd P2 entry to second P1
-	mov eax, p1_table_2
-	or eax, 0b11 ; Present and writable
-	mov [p2_table + 8], eax
-	
-	mov ecx, 0 ; counter
-.map_p1_table:
-	; map ecx-th P1 entry to a page at address 4KiB*ecx
-	mov eax, 0x1000 ; 4KiB
-	mul ecx ; start address of page
-	or eax,0b11 ; present, and writable
-	mov [p1_table + ecx*8], eax ; map entry
+	mov eax, p2_table_3
+	or eax, 0b11
+	mov [p3_table_2+8], eax
 
-	inc ecx
-	cmp ecx, 512 ; if the counter is 512 then 2MiB is mapped
-	jne .map_p1_table ; else map some more
-	mov ecx, 0; counter
-.map_p1_table_2:
+	mov eax, p2_table_4
+	or eax, 0b11
+	mov [p3_table_2+16], eax
+	
+	mov eax, p2_table_5
+	or eax, 0b11
+	mov [p3_table_2+24], eax
+	
+	;mov eax, p2_table_2
+	;or eax, 0b11 ; present and writable
+	;mov [p3_table+510*8], eax
+		
+	mov ecx, 0 ; counter
+.map_p2_table:
 	; map ecx-th P1 entry to a page at address 4KiB*ecx
-        mov eax, 0x1000 ; 4KiB
-        mul ecx ; start address of page
-        add eax, 0x200000 ; Add 2MiB
-	or eax,0b11 ; present, and writable
-        mov [p1_table_2 + ecx*8], eax ; map entry
+	mov eax, 0x200000 ; 2MiB
+	mul ecx ; start address of page
+	or eax,0b10000011 ; huge, present, and writable
+	mov [p2_table + ecx*8], eax ; map entry
+	
+	add eax, 0x40000000 ; Add 1G
+	mov [p2_table_3 + ecx*8], eax ; map entry
+	
+	add eax, 0x40000000 ; Add a total of 2G
+	mov [p2_table_4 + ecx*8], eax ; map entry
+	
+	add eax, 0x40000000 ; Add a total of 3G
+	mov [p2_table_5 + ecx*8], eax ; map entry
+	
+	inc ecx
+	cmp ecx, 512 ; if the counter is 511 then 1GiB is mapped
+	jne .map_p2_table ; else map some more
+	mov ecx, 0 ; counter
+.map_p2_table_2:
+        ; map ecx-th P1 entry to a page at address 4KiB*ecx
+        ;mov eax, 0x200000 ; 2MiB
+        ;mul ecx ; start address of page
+        ;or eax,0b10000011 ; huge, present, and writable
+        ;mov [p2_table_2 + ecx*8], eax ; map entry
 
         inc ecx
-        cmp ecx, 512 ; if the counter is 512 then 2MiB is mapped
-        jne .map_p1_table_2 ; else map some more
-        mov ecx, 0; counter
-
+        cmp ecx, 15 ; if the counter is 15 then 30MiB is mapped
+        jne .map_p2_table_2 ; else map some more
+	
 	ret
 enable_paging:
 	; load P4 to the cr3 register
@@ -178,12 +220,12 @@ enable_paging:
 	; enable paging in cr0
 	mov eax, cr0
 	or eax, 1 << 31
+	or eax, 1 << 16
 	mov cr0, eax
 	ret
 global _start
 _start:
-	mov esp, stack_top ; Sets esp to the stack top which grows downwards
-	
+	cli
 	mov edi,ebx ; Move multiboot header to edi
 
 	call check_multiboot
@@ -194,7 +236,6 @@ _start:
 	call enable_paging
 
 	lgdt [GDT64.Pointer]
-	
-	extern long_mode_start
-	jmp GDT64.Code:long_mode_start
 
+	extern long_mode_start	
+	jmp GDT64.Code:long_mode_start
