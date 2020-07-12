@@ -26,7 +26,7 @@ void mapPages(uint64_t physical, uint64_t virtual, uint8_t flags, uint64_t size)
 }
 void* palloc(){
 	uint64_t pointer = kmalloc_pag(4096,4096);
-	pointer -= get_phys_base();
+	//pointer -= 0xffffffff80000000;
 	return (void*)pointer;
 }
 uint64_t offset = 0;
@@ -42,14 +42,14 @@ void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
 	page_3_table_t* p3_table = (page_3_table_t*) tableToMapping(active_directory->tables[p4_index]);
 	if(p3_table == 0){
 		p3_table = palloc();
-		memset((uint64_t)p3_table,0,4096);
-		active_directory->tables[p4_index] = (((uint64_t)p3_table&0xFFFFFFFF)) | 0b11;
+		memset(((uint64_t)p3_table),0,4096);
+		active_directory->tables[p4_index] = ((((uint64_t)p3_table-0xffffffff80000000)&0xFFFFFFFF)) | 0b11;
 	}
 	page_2_table_t* p2_table = (page_2_table_t*) tableToMapping(p3_table->entries[p3_index]);
 	if(p2_table == 0){
                 p2_table = palloc();
-		memset((uint64_t)p2_table,0,4096);
-		p3_table->entries[p3_index] = (((uint64_t)p2_table&0xFFFFFFFF)) | 0b11;
+		memset(((uint64_t)p2_table),0,4096);
+		p3_table->entries[p3_index] = ((((uint64_t)p2_table-0xffffffff80000000)&0xFFFFFFFF)) | 0b11;
 	}
 	
 	uint64_t entry = physical | 1 | 1<<7 | flags;
@@ -98,6 +98,8 @@ void unmapPage(uint64_t virtual) {
 
 }
 uint64_t __attribute__ ((noinline)) tableToMapping(uint64_t entry){
+	if(entry == 0)
+		return 0;
 	uint64_t pointer = entry & 0xFFFFFFFFFFFFF000;
 	pointer |= offset;
 	return pointer;
@@ -123,7 +125,7 @@ void init_paging(){
 	boot_directory = cr3;
 	
 	active_directory = boot_directory;//palloc();
-	uint64_t max_mem = 0x200000*511;
+	uint64_t max_mem = 0x200000*511*8;
 	offset = 0xffff800000000000;
 	
 	//mapPages(0x0,0xffff800000000000,1<<1,max_mem);

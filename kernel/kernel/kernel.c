@@ -11,6 +11,7 @@
 #include "arch/x86_64/ahci.h"
 #include "kernel/timer.h"
 #include "kernel/fs/echfs.h"
+#include "arch/x86_64/mbr.h"
 void panic(char *message){
 	asm volatile("cli");
 	terminal_writestring("PANIC: ");
@@ -39,6 +40,13 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("Successfully initialized PIT\n");
 	init_keyboard();
 	terminal_writestring("Successfully initialized keyboard\n");
+	mbr_table_t* mbr = init_mbr();
+	terminal_writestring("MBR signature: 0x");
+	uint16_t mbr_sig = mbr->bootsectorSignature;
+	terminal_writeint(mbr_sig & 0xFF,16);
+	terminal_writestring(" - 0x");
+	terminal_writeint(mbr_sig>>8,16);
+	terminal_writestring("\nSuccessfully initialized MBR\n");
 	init_pci();
 	terminal_writestring("Successfully initialized PCI\n");
 	init_ahci();
