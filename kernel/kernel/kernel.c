@@ -12,6 +12,8 @@
 #include "kernel/timer.h"
 #include "kernel/fs/echfs.h"
 #include "arch/x86_64/mbr.h"
+#include "arch/x86_64/acpi.h"
+
 void panic(char *message){
 	asm volatile("cli");
 	terminal_writestring("PANIC: ");
@@ -36,6 +38,10 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("Successfully initialized PMM full\n");
 	init_paging();
 	terminal_writestring("Successfully initialized paging\n");
+	rsdp_descriptor_t* rsdp = init_acpi();
+	terminal_writestring("RSDP signature: ");
+	terminal_write(rsdp->signature,8);
+	terminal_writestring("\nSuccessfully initialized ACPI\n");
 	init_timer();
 	terminal_writestring("Successfully initialized PIT\n");
 	init_keyboard();
