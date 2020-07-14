@@ -38,12 +38,14 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("Successfully initialized PMM full\n");
 	init_paging();
 	terminal_writestring("Successfully initialized paging\n");
-	rsdp_descriptor_t* rsdp = init_acpi();
-	terminal_writestring("RSDP signature: ");
-	terminal_write(rsdp->signature,8);
-	terminal_writestring("\nSuccessfully initialized ACPI\n");
 	init_timer();
 	terminal_writestring("Successfully initialized PIT\n");
+	rsdp_descriptor_t* rsdp = init_acpi();
+        sdt_header_t* fadt_header = find_acpi_header(rsdp,"FACP");
+	fadt_t *fadt = fadt_header;
+	
+	terminal_write(fadt->header.signature,4);
+	terminal_writestring("\nSuccessfully initialized ACPI\n");
 	init_keyboard();
 	terminal_writestring("Successfully initialized keyboard\n");
 	mbr_table_t* mbr = init_mbr();

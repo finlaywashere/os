@@ -210,8 +210,8 @@ void init_pci() {
 		if (device == 0x0 || device->functions[0] == 0x0)
 			continue;
 		pci_device_function_t function = *device->functions[0];
-		terminal_writestring("Device class: 0x");
-		terminal_writeint(function.classCode, 16);
-		terminal_writestring("\n");
+		//terminal_writestring("Device class: 0x");
+		//terminal_writeint(function.classCode, 16);
+		//terminal_writestring("\n");
 	}
 }
