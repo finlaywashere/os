@@ -1,0 +1,1 @@
+mov qword [0xFFFF8000000B8000], 93

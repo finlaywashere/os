@@ -2,3 +2,4 @@
 isodir
 sysroot
 disk.iso.lock
+*.o

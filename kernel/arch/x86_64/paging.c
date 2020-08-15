@@ -77,7 +77,9 @@ int isMapped(uint64_t virtual){
 	}
 	return 0;
 }
-
+uint64_t get_active_directory(){
+	return active_directory;
+}
 void unmapPage(uint64_t virtual) {
 	uint64_t p4_index = virtual >> 39 & 0b111111111;
         uint64_t p3_index = virtual >> 30 & 0b111111111;
@@ -118,6 +120,10 @@ uint64_t toPhysical(uint64_t virtual){
                 return -1;
         }
 	return p2_table->entries[p2_index] & 0xFFFFFFFFFFFFF000;
+}
+void switch_page_directory(uint64_t *pd){
+	active_directory = pd;
+	asm volatile("mov %%cr3, %0" ::"r" (pd));
 }
 void init_paging(){
 	uint64_t cr3;
