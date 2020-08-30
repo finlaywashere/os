@@ -12,13 +12,14 @@ void validate(sdt_header_t* sdt){
 	return;
 }
 
-sdt_header_t* find_acpi_header(rsdp_descriptor_t* rsdp, char sig[4]){
-	uint64_t base_addr = rsdp->rsdtAddr+0xffff800000000000;
-	sdt_header_t* rsdt = (sdt_header_t*) base_addr;
-	int entries = (rsdt->length-sizeof(rsdt)) / 4;
+sdt_header_t* find_acpi_header(rsdt_t* rsdt, char sig[4]){
+	int entries = (rsdt->h.length-sizeof(rsdt->h)) / 4;
+	uint32_t *pointers = &rsdt->pointers;
 	for(int i = 0; i < entries; i++){
-		sdt_header_t* sdt = (uint64_t)*(uint32_t*)(rsdt+4*i);
-		if(memcmp(sdt->signature,sig,4) == 0){
+		uint64_t pointer = pointers[i]+0xffff800000000000;
+		sdt_header_t* sdt = (sdt_header_t*)pointer;
+		char* sig2 = sdt->signature;
+		if(memcmp(sig2,sig,4) == 0){
 			validate(sdt);
 			return sdt;
 		}
@@ -26,7 +27,7 @@ sdt_header_t* find_acpi_header(rsdp_descriptor_t* rsdp, char sig[4]){
 	return 0;
 }
 
-rsdp_descriptor_t* init_acpi(){
+rsdt_t* init_acpi(){
 	uint16_t *ebda = 0xffff80000000040e;
 	uint64_t ebdaStart = *ebda + 0xffff800000000000;
 	if((*ebda % 16) != 0){
@@ -60,5 +61,5 @@ rsdp_descriptor_t* init_acpi(){
 	if((uint8_t)sigTotal != 0)
 		panic("RSDP checksum invalid!");
 	
-	return rsdp_descriptor;
+	return (rsdt_t*)rsdp_descriptor;
 }

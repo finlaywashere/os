@@ -40,10 +40,11 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("Successfully initialized paging\n");
 	init_timer();
 	terminal_writestring("Successfully initialized PIT\n");
-	rsdp_descriptor_t* rsdp = init_acpi();
-        sdt_header_t* fadt_header = find_acpi_header(rsdp,"FACP");
+	rsdt_t* rsdt = init_acpi();
+        sdt_header_t* fadt_header = find_acpi_header(rsdt,"FACP");
 	fadt_t *fadt = fadt_header;
 	
+	terminal_writestring("FADT Header: ");
 	terminal_write(fadt->header.signature,4);
 	terminal_writestring("\nSuccessfully initialized ACPI\n");
 	init_keyboard();

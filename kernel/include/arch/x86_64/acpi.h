@@ -16,6 +16,7 @@ struct rsdp_descriptor_2{
 }__attribute__((packed));
 typedef struct rsdp_descriptor_2 rsdp_descriptor_t_2;
 
+
 struct sdt_header{
 	char signature[4];
 	uint32_t length;
@@ -28,6 +29,12 @@ struct sdt_header{
 	uint32_t creator_rev;
 }__attribute__((packed));
 typedef struct sdt_header sdt_header_t;
+
+struct rsdt{
+        sdt_header_t h;
+	uint32_t pointers;
+}__attribute__((packed));
+typedef struct rsdt rsdt_t;
 
 struct generic_address_structure{
 	uint8_t address_space;
@@ -99,6 +106,6 @@ struct fadt{
 }__attribute__((packed));
 typedef struct fadt fadt_t;
 
-rsdp_descriptor_t* init_acpi();
-sdt_header_t* find_acpi_header(rsdp_descriptor_t* rsdp, char sig[4]);
+rsdt_t* init_acpi();
+sdt_header_t* find_acpi_header(rsdt_t* rsdt, char sig[4]);
 
