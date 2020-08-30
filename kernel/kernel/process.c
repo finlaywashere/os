@@ -9,15 +9,11 @@ context_t* create_process(char* path){
 	uint64_t id = getFile(path);
         directory_entry_t *file = getFileById(id);
 	uint64_t size = file->fileSize+0x200000;
-	uint64_t* page_directory = (uint64_t*)palloc();
-        uint64_t* active_directory = (uint64_t*)get_active_directory();
-        memset(page_directory,0,256*sizeof(uint64_t));
-        for(int i = 127; i < 256; i++){
-                page_directory[i] = active_directory[i];
-        }
-        
+        uint64_t* active_directory = (uint64_t*) get_active_directory();
+       	uint64_t* page_directory = (uint64_t) clone_directory(active_directory);
+	 
 	uint64_t address = load_elf(file);
-	switch_page_directory(page_directory);
+	switch_page_directory(active_directory);
         mapPages((uint32_t)address,0,0b11,size);
 	
 	switch_page_directory(active_directory);

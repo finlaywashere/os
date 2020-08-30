@@ -34,6 +34,10 @@ void *memset(void* bufptr, int value, size_t size) {
 		buf[i] = (unsigned char) value;
 	return bufptr;
 }
+void memcpy(char* buf1, char* buf2, size_t len){
+	for(size_t i = 0; i < len; i++)
+		buf2[i] = buf1[i];
+}
 unsigned iabs(int input) {
     if (input >= 0)
         return (unsigned)input;

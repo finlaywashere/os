@@ -29,6 +29,11 @@ void* palloc(){
 	//pointer -= 0xffffffff80000000;
 	return (void*)pointer;
 }
+page_directory_t* clone_directory(page_directory_t* directory){
+	page_directory_t* new_dir = palloc();
+	memcpy(directory,new_dir,4096);
+	return new_dir;
+}
 uint64_t offset = 0;
 void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
 	//if((physical > &_ro_start && physical < &_ro_end) || (virtual > &_ro2_start && virtual < &_ro2_end)){

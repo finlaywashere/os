@@ -10,4 +10,6 @@ int count(char* str, char delim);
 int strcmp(char *str1, char* str2);
 int memcmp(char* str1, char* str2, int len);
 
+void memcpy(char* buf1, char* buf2, size_t len);
+
 
