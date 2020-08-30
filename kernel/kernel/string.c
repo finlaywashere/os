@@ -20,6 +20,13 @@ int strcmp(char *str1, char* str2){
 	}
 	return 0;
 }
+int memcmp(char* str1, char* str2, int len){
+        for(int i = 0; i < len; i++){
+		if(str1[i] != str2[i])
+			return 1;
+        }
+	return 0;
+}
 
 void *memset(void* bufptr, int value, size_t size) {
 	unsigned char* buf = (unsigned char*) bufptr;

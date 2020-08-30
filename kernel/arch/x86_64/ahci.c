@@ -196,21 +196,21 @@ void init_ahci(){
 	pci_device_result_t* ahciDevices = findPCIDevicesByClass(0x01);
 	for(int i = 0; i < ahciDevices->count; i++){
 		pci_device_function_t function = ahciDevices->devices[i];
-		terminal_writestring("PCI AHCI controller class: 0x");
-		terminal_writeint(function.classCode,2);
-		terminal_writestring("\n");
+		//terminal_writestring("PCI AHCI controller class: 0x");
+		//terminal_writeint(function.classCode,2);
+		//terminal_writestring("\n");
 		controller = function;
 		break;
 	}
 	mem = (uint64_t) controller.bar5|0xffff800000000000;
 	
-	terminal_writestring("Cap: 0x");
-	terminal_writeint(mem->cap,16);
-	terminal_writestring("\n");
+	//terminal_writestring("Cap: 0x");
+	//terminal_writeint(mem->cap,16);
+	//terminal_writestring("\n");
 
-	terminal_writestring("HBA version: ");
-	terminal_writeint(mem->vs,10);
-	terminal_writestring("\n");
+	//terminal_writestring("HBA version: ");
+	//terminal_writeint(mem->vs,10);
+	//terminal_writestring("\n");
 	
 	int activePorts[32];
 	int curr = 0;
