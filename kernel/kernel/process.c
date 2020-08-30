@@ -3,23 +3,25 @@
 #include <kernel/string.h>
 #include <kernel/elf.h>
 #include <kernel/fs/echfs.h>
+#include <kernel/vmm.h>
 
 context_t* create_process(char* path){
 	uint64_t id = getFile(path);
         directory_entry_t *file = getFileById(id);
 	uint64_t size = file->fileSize+0x200000;
-	uint8_t *buf = kmalloc_pa(size,0x200000);
-        readFile(file,buf);
 	uint64_t* page_directory = (uint64_t*)palloc();
-	uint64_t* active_directory = (uint64_t*)get_active_directory();
-	memset(page_directory,0,256*sizeof(uint64_t));
-	for(int i = 127; i < 256; i++){
-		page_directory[i] = active_directory[i];
-	}
+        uint64_t* active_directory = (uint64_t*)get_active_directory();
+        memset(page_directory,0,256*sizeof(uint64_t));
+        for(int i = 127; i < 256; i++){
+                page_directory[i] = active_directory[i];
+        }
+        
+	uint64_t address = load_elf(file);
 	switch_page_directory(page_directory);
-	mapPages(buf,0,0b11,size);
+        mapPages((uint32_t)address,0,0b11,size);
+	
 	switch_page_directory(active_directory);
-	context_t* context = kmalloc(sizeof(context_t));
+	context_t* context = kmalloc_p(sizeof(context_t));
 	context->status = PROCESS_RUNNABLE;
 	context->page_directory = page_directory;
 	return context;

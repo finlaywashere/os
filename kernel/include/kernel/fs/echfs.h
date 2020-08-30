@@ -1,3 +1,4 @@
+#pragma once
 #include <stdint.h>
 struct identity_block{
 	uint8_t jmp[4];

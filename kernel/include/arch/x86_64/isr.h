@@ -1,3 +1,4 @@
+#pragma once
 #include <stdint.h>
 
 struct idt_entry{
@@ -48,6 +49,7 @@ void isr_handler(registers_t);
 #define IRQ14 46
 #define IRQ15 47
 
+#define SYSCALL 80
 
 typedef void (*isr_t)(registers_t);
 void register_interrupt_handler(uint8_t num, isr_t handler);
@@ -102,6 +104,8 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
+
+extern void irq80();
 
 extern void enableInterrupts();
 extern void disableInterrupts();

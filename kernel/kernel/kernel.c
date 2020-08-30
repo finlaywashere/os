@@ -13,6 +13,7 @@
 #include "kernel/fs/echfs.h"
 #include "arch/x86_64/mbr.h"
 #include "arch/x86_64/acpi.h"
+#include "kernel/process.h"
 
 void panic(char *message){
 	asm volatile("cli");
@@ -58,9 +59,12 @@ void kernel_main(multiboot_info_t* mbd){
 	init_echfs();
 	echfs_setup_fs_map();
 	terminal_writestring("Successfully initialized ECHFS!\n");
-	load_elf();
+	context_t* process = create_process("test.bin");
 	terminal_writestring("Successfully loaded ELF file from disk!\n");
-
+	terminal_writestring("Entering process");
+	map_process(process);
+	terminal_writestring("Process returned");
+	
 	while(1){
 		// Kernel loop
 	}

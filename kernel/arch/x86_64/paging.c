@@ -122,8 +122,8 @@ uint64_t toPhysical(uint64_t virtual){
 	return p2_table->entries[p2_index] & 0xFFFFFFFFFFFFF000;
 }
 void switch_page_directory(uint64_t *pd){
+	asm volatile("mov %0, %%cr3" ::"r" (toPhysical(pd)));
 	active_directory = pd;
-	asm volatile("mov %%cr3, %0" ::"r" (pd));
 }
 void init_paging(){
 	uint64_t cr3;

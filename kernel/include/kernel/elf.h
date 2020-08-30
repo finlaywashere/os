@@ -1,5 +1,5 @@
 #include <stdint.h>
-
+#include <kernel/fs/echfs.h>
 #define NO_ARCH 0
 #define SPACE 2
 #define X86 3
@@ -51,3 +51,5 @@ struct elf_program_header{
 	uint64_t align;
 }__attribute__((packed));
 typedef struct elf_program_header elf_program_header_t;
+
+uint64_t load_elf(directory_entry_t* file);

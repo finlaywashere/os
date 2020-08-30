@@ -76,6 +76,8 @@ void init_idt() {
 	set_idt(46, (uint64_t) irq14, 0x08, 0x8E);
 	set_idt(47, (uint64_t) irq15, 0x08, 0x8E);
 
+	// SYSCALL interrupt, can be triggered by ring 3!
+	set_idt(80, (uint64_t) irq80, 0x08, 0xEE);
 	load_idt();
 }
 void set_idt(uint8_t number, uint64_t base, uint16_t selector, uint8_t flags) {
