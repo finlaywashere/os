@@ -11,8 +11,9 @@ void validate(sdt_header_t* sdt){
 		panic("SDT header checksum is invalid!");
 	return;
 }
-
-sdt_header_t* find_acpi_header(rsdt_t* rsdt, char sig[4]){
+rsdt_t* rsdt;
+fadt_t* fadt;
+sdt_header_t* find_acpi_header(char sig[4]){
 	int entries = (rsdt->h.length-sizeof(rsdt->h)) / 4;
 	uint32_t *pointers = &rsdt->pointers;
 	for(int i = 0; i < entries; i++){
@@ -27,7 +28,7 @@ sdt_header_t* find_acpi_header(rsdt_t* rsdt, char sig[4]){
 	return 0;
 }
 
-rsdt_t* init_acpi(){
+void init_acpi(){
 	uint16_t *ebda = 0xffff80000000040e;
 	uint64_t ebdaStart = *ebda + 0xffff800000000000;
 	if((*ebda % 16) != 0){
@@ -61,5 +62,9 @@ rsdt_t* init_acpi(){
 	if((uint8_t)sigTotal != 0)
 		panic("RSDP checksum invalid!");
 	
-	return (rsdt_t*)rsdp_descriptor;
+	rsdt = (rsdt_t*) rsdp_descriptor;
+	fadt = (fadt_t*) find_acpi_header("FACP");
+	terminal_writestring("FADT DSDT pointer: 0x");
+	terminal_writeint(fadt->dsdt,16);
+	terminal_writestring("\n");
 }

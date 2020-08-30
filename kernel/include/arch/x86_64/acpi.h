@@ -106,6 +106,6 @@ struct fadt{
 }__attribute__((packed));
 typedef struct fadt fadt_t;
 
-rsdt_t* init_acpi();
-sdt_header_t* find_acpi_header(rsdt_t* rsdt, char sig[4]);
+void init_acpi();
+sdt_header_t* find_acpi_header(char sig[4]);
 
