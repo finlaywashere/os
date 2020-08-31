@@ -13,7 +13,7 @@ context_t* create_process(char* path){
        	uint64_t* page_directory = (uint64_t) clone_directory(active_directory);
 	 
 	uint64_t address = load_elf(file);
-	switch_page_directory(active_directory);
+	switch_page_directory(page_directory);
         mapPages((uint32_t)address,0,0b11,size);
 	
 	switch_page_directory(active_directory);
@@ -25,7 +25,5 @@ context_t* create_process(char* path){
 void map_process(context_t* process){
 	switch_page_directory(process->page_directory);
 	process->status = PROCESS_RUNNING;
-	elf_header_t* elf_header = (elf_header_t*) 0x0;
-        terminal_writestring(elf_header->magic);
 	asm volatile("jmp 0");
 }

@@ -120,15 +120,44 @@ uint64_t toPhysical(uint64_t virtual){
         if(p3_table == 0){
                 return -1;
         }
-        page_2_table_t* p2_table = (page_2_table_t*) tableToMapping(p3_table->entries[p3_index]);
-        if(p2_table == 0){
-                return -1;
-        }
-	return p2_table->entries[p2_index] & 0xFFFFFFFFFFFFF000;
+	uint64_t p3_entry = p3_table->entries[p3_index];
+	if(p3_entry & 0b10000000){
+		return virtual - 0xffff800000000000;
+	}else{
+        	//page_2_table_t* p2_table = (page_2_table_t*) tableToMapping(p3_entry);
+        	//if(p2_table == 0){
+        	//        return -1;
+	        //}
+		//uint64_t p2_entry = p2_table->entries[p2_index];
+		//return (p2_entry & 0xFFFFFFFFFFFFF000) + virtual & 0x1FFFFF;
+		return virtual - 0xffffffff80000000;
+	}
 }
 void switch_page_directory(uint64_t *pd){
 	asm volatile("mov %0, %%cr3" ::"r" (toPhysical(pd)));
 	active_directory = pd;
+}
+void map1GPages(){
+	offset = 0xffffffff80000000;
+	uint64_t p4_index = 256;
+	page_3_table_t* p3_table = (page_3_table_t*) tableToMapping(active_directory->tables[p4_index]);
+	if(p3_table == 0){
+		p3_table = palloc();
+                memset(((uint64_t)p3_table),0,4096);
+                active_directory->tables[p4_index] = ((((uint64_t)p3_table-0xffffffff80000000)&0xFFFFFFFF)) | 0b11;
+	}
+	offset = 0;
+	uint64_t phys = 0;
+	for(int i = 0; i < 512; i++){
+		uint64_t entry = phys | 0b10000011;
+	
+		uint64_t virt = 0xffff8000000000000 + phys;
+
+        	p3_table->entries[i] = entry;
+		
+	        flush_tlb_single(virt);
+		phys += 0x40000000;
+	}
 }
 void init_paging(){
 	uint64_t cr3;
@@ -137,11 +166,9 @@ void init_paging(){
 	
 	active_directory = boot_directory;//palloc();
 	uint64_t max_mem = 0x200000*511*8;
+	map1GPages();
 	offset = 0xffff800000000000;
 	
-	//mapPages(0x0,0xffff800000000000,1<<1,max_mem);
-	
-	
-	active_directory = (page_directory_t*)((uint64_t)active_directory | 0xffff800000000000);
+	active_directory = (page_directory_t*)((uint64_t)active_directory + 0xffffffff80000000);
 	active_directory->tables[0] = 0x0;
 }

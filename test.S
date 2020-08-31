@@ -1,1 +1,1 @@
-mov qword [0xFFFF8000000B8000], 93
+mov qword [0xffff8000000b8000], 0x4f524f45

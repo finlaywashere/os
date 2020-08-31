@@ -23,22 +23,23 @@ void panic(char *message){
 }
 
 void kernel_main(multiboot_info_t* mbd){
-	mbd = (multiboot_info_t*) (((uint64_t)mbd)+0xffff800000000000);
+	mbd = (multiboot_info_t*) (((uint64_t)mbd)+0xffffffff80000000);
 	terminal_initialize();
 	terminal_writestring("Successfully booted with ");
 	char* bootloaderName = (void*) (uint64_t) mbd->boot_loader_name;
 	terminal_writestring(bootloaderName);
 	terminal_writestring("\n");
+	init_pmm_base(mbd);
+        terminal_writestring("Successfully initialized PMM base\n");
+        init_pmm(mbd);
+        terminal_writestring("Successfully initialized PMM full\n");
+        init_paging();
+        terminal_writestring("Successfully initialized paging\n");
+
 	init_gdt();
 	terminal_writestring("Successfully initialized GDT\n");
 	//init_idt();
 	terminal_writestring("Successfully initialized IDT\n");
-	init_pmm_base(mbd);
-        terminal_writestring("Successfully initialized PMM base\n");
-	init_pmm(mbd);
-	terminal_writestring("Successfully initialized PMM full\n");
-	init_paging();
-	terminal_writestring("Successfully initialized paging\n");
 	init_timer();
 	terminal_writestring("Successfully initialized PIT\n");
 	init_acpi();

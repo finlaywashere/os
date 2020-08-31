@@ -19,8 +19,8 @@ p4_table:
 	resb 4096
 p3_table:
 	resb 4096
-p3_table_2:
-	resb 4096
+;p3_table_2:
+;	resb 4096
 p3_table_3:
 	resb 4096
 p2_table:
@@ -131,9 +131,9 @@ set_up_page_tables:
 	or eax, 0b11 ; Present and writable
 	mov [p4_table], eax ; Identity paging table
 
-	mov eax, p3_table_2
-	or eax, 0b11
-	mov [p4_table+256*8], eax ; Memory table
+;	mov eax, p3_table_2
+;	or eax, 0b11
+;	mov [p4_table+256*8], eax ; Memory table
 	
 	mov eax, p3_table_3
         or eax, 0b11
@@ -157,17 +157,17 @@ set_up_page_tables:
 	cmp ecx, 512 ; if the counter is 511 then 1GiB is mapped
 	jne .map_p2_table ; else map some more
 	mov ecx, 0 ; counter
-.map_p3_table_2:
-        ; map ecx-th P1 entry to a page at address 1GiB*ecx
-        mov eax, 0x40000000 ; 1GiB
-        mul ecx ; start address of page
-        or eax,0b10000011 ; huge, present, and writable
-        mov [p3_table_2 + ecx*8], eax ; map entry
-
-        inc ecx
-        cmp ecx, 511 ; if the counter is 511 then 512GiB is mapped
-        jne .map_p3_table_2 ; else map some more
-	mov ecx, 0; counter
+;.map_p3_table_2:
+;        ; map ecx-th P1 entry to a page at address 1GiB*ecx
+;        mov eax, 0x40000000 ; 1GiB
+;        mul ecx ; start address of page
+;        or eax,0b10000011 ; huge, present, and writable
+;        mov [p3_table_2 + ecx*8], eax ; map entry
+;
+;        inc ecx
+;        cmp ecx, 511 ; if the counter is 511 then 512GiB is mapped
+;        jne .map_p3_table_2 ; else map some more
+;	mov ecx, 0; counter
 	ret
 enable_paging:
 	; load P4 to the cr3 register

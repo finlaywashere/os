@@ -2,7 +2,7 @@
 
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
-static const uint16_t *VGA_MEMORY = (uint16_t*) 0xFFFF8000000B8000;
+static const uint16_t *VGA_MEMORY = (uint16_t*) 0xffffffff800b8000;
 
 void set_vga(uint16_t *VGA){
 	VGA_MEMORY = VGA;
