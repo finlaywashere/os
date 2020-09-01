@@ -1,4 +1,8 @@
 bits 64
+global jump
+jump:
+	jmp rdi
+
 global jmp_usermode
 jmp_usermode:
 	mov ax, 0x23

@@ -32,6 +32,13 @@ void terminal_putentryat(unsigned char c, uint8_t colour, size_t x, size_t y) {
 	const size_t index = y * VGA_WIDTH + x;
 	terminal_buffer[index] = ((uint16_t) c) | colour << 8;
 }
+void terminal_setpos(size_t row, size_t col){
+	terminal_row = row;
+	terminal_column = col;
+}
+uint64_t terminal_getpos(){
+	return (((uint64_t)terminal_column)<<32)|terminal_row;
+}
 void scroll(size_t amount) {
 	for (size_t y = amount; y < VGA_HEIGHT; y++) {
 		for (size_t x = 0; x < VGA_WIDTH; x++) {

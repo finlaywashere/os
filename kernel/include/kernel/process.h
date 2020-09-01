@@ -11,6 +11,7 @@ struct context{
 	registers_t state;
 	uint16_t status;
 	uint64_t *page_directory;
+	uint64_t entry_point;
 };
 typedef struct context context_t;
 
