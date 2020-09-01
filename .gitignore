@@ -5,3 +5,4 @@ disk.iso.lock
 *.o
 *.a
 *.bin
+*.d
