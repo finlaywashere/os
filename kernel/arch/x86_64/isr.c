@@ -95,6 +95,7 @@ void isr_handler(registers_t regs) {
 	terminal_writestring("Interrupt: 0x");
 	terminal_writeint(regs.intNo, 16);
 	terminal_writestring("\n");
+	panic("Exception occurred!");
 	outb(0x20, 0x20);
 }
 isr_t interrupt_handlers[256];

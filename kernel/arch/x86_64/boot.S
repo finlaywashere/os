@@ -70,11 +70,16 @@ GDT64:                           ; Global Descriptor Table (64-bit).
     dw 0
     db 0
     db 0x89
-    db 0x40
+    db 0x40 ; size bit set
     db 0
+    dq 0
     .Pointer:                    ; The GDT-pointer.
     dw $ - GDT64 - 1             ; Limit.
     dq GDT64                     ; Base.
+
+global tss_mem
+tss_mem:
+	resb 104
 
 section .low_text
 
