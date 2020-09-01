@@ -1,5 +1,5 @@
 SYSTEM_HEADER_PROJECTS="kernel"
-PROJECTS="kernel"
+PROJECTS="kernel libc"
  
 export MAKE=${MAKE:-make}
 export HOST=x86_64-elf

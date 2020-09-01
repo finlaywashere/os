@@ -14,6 +14,7 @@
 #include "arch/x86_64/mbr.h"
 #include "arch/x86_64/acpi.h"
 #include "kernel/process.h"
+#include "kernel/syscall.h"
 
 void panic(char *message){
 	asm volatile("cli");
@@ -41,6 +42,8 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("Successfully initialized TSS\n");
 	init_idt();
 	terminal_writestring("Successfully initialized IDT\n");
+	init_syscalls();
+	terminal_writestring("Successfully initialized syscalls\n");
 	init_timer();
 	terminal_writestring("Successfully initialized PIT\n");
 	init_acpi();

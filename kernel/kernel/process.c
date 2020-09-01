@@ -14,7 +14,7 @@ context_t* create_process(char* path){
 	 
 	uint64_t address = load_elf(file);
 	switch_page_directory(page_directory);
-        mapPages((uint32_t)address,0,0b11,size);
+        mapPages((uint32_t)address,0,0b111,size);
 	
 	switch_page_directory(active_directory);
 	context_t* context = kmalloc_p(sizeof(context_t));
@@ -22,8 +22,12 @@ context_t* create_process(char* path){
 	context->page_directory = page_directory;
 	return context;
 }
+extern void jmp_usermode();
+uint64_t user_function;
 void map_process(context_t* process){
 	switch_page_directory(process->page_directory);
 	process->status = PROCESS_RUNNING;
-	asm volatile("jmp 0");
+	//user_function = 0x0;
+	//jmp_usermode();
+	asm("jmp 0x0");
 }

@@ -39,6 +39,7 @@ void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
 	//if((physical > &_ro_start && physical < &_ro_end) || (virtual > &_ro2_start && virtual < &_ro2_end)){
 	//	flags = 1 | (1 << 7);
 	//}
+	uint8_t user = flags & 0b100; 
 	physical &= 0b1111111111111111111111111111111111111111111000000000000000000000;
 	uint64_t p4_index = (virtual >> 39) & 0b111111111;
 	uint64_t p3_index = (virtual >> 30) & 0b111111111;
@@ -49,12 +50,16 @@ void mapPage(uint64_t physical, uint64_t virtual, uint8_t flags) {
 		p3_table = palloc();
 		memset(((uint64_t)p3_table),0,4096);
 		active_directory->tables[p4_index] = ((((uint64_t)p3_table-0xffffffff80000000)&0xFFFFFFFF)) | 0b11;
+		if(user)
+			active_directory->tables[p4_index] |= 0b100;
 	}
 	page_2_table_t* p2_table = (page_2_table_t*) tableToMapping(p3_table->entries[p3_index]);
 	if(p2_table == 0){
                 p2_table = palloc();
 		memset(((uint64_t)p2_table),0,4096);
 		p3_table->entries[p3_index] = ((((uint64_t)p2_table-0xffffffff80000000)&0xFFFFFFFF)) | 0b11;
+		if(user)
+			p3_table->entries[p3_index] |= 0b100;
 	}
 	
 	uint64_t entry = physical | 1 | 1<<7 | flags;
