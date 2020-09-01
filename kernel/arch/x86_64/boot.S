@@ -65,6 +65,13 @@ GDT64:                           ; Global Descriptor Table (64-bit).
     db 11110010b
     db 00000000b
     db 0
+    .TSS: equ $ - GDT64
+    dw 0
+    dw 0
+    db 0
+    db 0x89
+    db 0x40
+    db 0
     .Pointer:                    ; The GDT-pointer.
     dw $ - GDT64 - 1             ; Limit.
     dq GDT64                     ; Base.

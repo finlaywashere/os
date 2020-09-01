@@ -17,7 +17,39 @@ struct gdt_entry{
 typedef struct gdt_entry gdt_entry_t;
 
 struct gdt{
-	gdt_entry_t entries[5];
+	gdt_entry_t entries[6];
 	gdt_pointer_t pointer;
 }__attribute__((packed));
 typedef struct gdt gdt_t;
+
+struct tss{
+	uint32_t resv1;
+	uint32_t rsp0_low;
+	uint32_t rsp0_high;
+	uint32_t rsp1_low;
+	uint32_t rsp1_high;
+	uint32_t rsp2_low;
+	uint32_t rsp2_high;
+	uint64_t resv2;
+	uint32_t ist1_low;
+	uint32_t ist1_high;
+	uint32_t ist2_low;
+	uint32_t ist2_high;
+	uint32_t ist3_low;
+        uint32_t ist3_high;
+	uint32_t ist4_low;
+        uint32_t ist4_high;
+	uint32_t ist5_low;
+        uint32_t ist5_high;
+	uint32_t ist6_low;
+        uint32_t ist6_high;
+	uint32_t ist7_low;
+        uint32_t ist7_high;
+	uint64_t resv3;
+	uint16_t resv4;
+	uint16_t iopb_offset;
+}__attribute__((packed));
+
+typedef struct tss tss_t;
+
+void init_tss();

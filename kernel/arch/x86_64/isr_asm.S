@@ -41,6 +41,12 @@ load_gdt:
 	cli
 	lgdt [gdt_ptr]
 	ret
+global load_tss
+load_tss:
+	cli
+	mov ax, 0x28
+	ltr ax
+	sti
 extern isr_handler
 isr_common:
 	pushAll
