@@ -3,3 +3,5 @@ isodir
 sysroot
 disk.iso.lock
 *.o
+*.a
+*.bin
