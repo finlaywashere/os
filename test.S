@@ -1,7 +1,7 @@
 bits 64
 section .data
 
-msg:	db "Hello there kernel from syscall", 0 ; Null terminated string
+msg:	db "\nHello there kernel from syscall", 0 ; Null terminated string
 
 section .bss
 align 8

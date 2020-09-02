@@ -6,3 +6,4 @@ disk.iso.lock
 *.a
 *.bin
 *.d
+disk_mnt/
