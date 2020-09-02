@@ -16,13 +16,10 @@ section .text
 _start:
 	mov rsp, stack_top ; Sets rsp to the stack top which grows downwards
 
-	mov rsi, msg
-	mov rax, 0
-
+	mov rdi, msg
+	
 	extern print
 	call print
-
-	pop rbp
-
+	jmp loop
 loop:
 	jmp loop

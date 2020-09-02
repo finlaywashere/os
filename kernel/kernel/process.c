@@ -14,6 +14,11 @@ context_t* create_process(char* path){
 	loaded_elf_t* elf = load_elf(file);
 	switch_page_directory(page_directory);
 	
+	//uint64_t phys = kmalloc_p(0x200000);
+	//memset((uint8_t*)phys,0,0x200000);
+	
+	//mapPage((uint32_t)phys,0x0,0b111);
+	
 	mapPages((uint32_t)elf->text_ptr,elf->text_vptr,0b101,elf->text_len);
 	
 	mapPages((uint32_t)elf->data_ptr,elf->data_vptr,0b111,elf->data_len);

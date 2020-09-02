@@ -36,28 +36,27 @@ loaded_elf_t* load_elf(directory_entry_t* file){
 			continue;
 		uint64_t length = p_header->sizeInMemory;
 		uint64_t align = p_header->align;
-
+		uint64_t v_addr = p_header->memOffset;
+		
+		uint64_t cpy_mem_offset = v_addr%0x200000;
+		
 		uint8_t* section = kmalloc_pa(length+0x200000,align);
 		memset(section,0,length);
 		
 		uint64_t f_length = p_header->sizeInFile;
 		uint64_t f_offset = p_header->dataOffset;
-		uint64_t v_addr = p_header->memOffset;
 
 		uint8_t* offset_buf = (uint8_t*)(buf+f_offset);
-		memcpy(offset_buf,section,f_length);
+		uint8_t* offset_section = (uint8_t*)(section+cpy_mem_offset);
+		memcpy(offset_buf,offset_section,f_length);
 		uint32_t flags = p_header->flags;
-		terminal_writestring(" f: 0x");
-		terminal_writeint(flags,16);
 		if(flags & 1){
 			// Code segment
-			terminal_writestring("Found code segment!\n");
 			elf->text_ptr = (uint64_t) section;
 			elf->text_vptr = v_addr;
 			elf->text_len = length;
 		}else if(flags & 2){
 			// Data segment
-			terminal_writestring("Found data segment!\n");
 			elf->data_ptr = (uint64_t) section;
                         elf->data_vptr = v_addr;
                         elf->data_len = length;

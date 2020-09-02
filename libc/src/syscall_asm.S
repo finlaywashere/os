@@ -1,9 +1,15 @@
 bits 64
 global screen_putchar
 screen_putchar:
-	mov rax, 0
+	push rax
 	push rbx
+	
+	mov rbx, rdi
+	mov rax, 0
 	int 80
+	
+	pop rbx
+	pop rax
 	ret
 global screen_setpos
 screen_setpos:
