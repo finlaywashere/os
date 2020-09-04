@@ -1,24 +1,18 @@
 bits 64
-global screen_putchar
-screen_putchar:
+global write
+write:
 	push rax
 	push rbx
+	push rcx
+	push rdx
 	
 	mov rbx, rdi
 	mov rax, 0
 	int 80
 	
+	pop rdx
+	pop rcx
 	pop rbx
 	pop rax
 	ret
-global screen_setpos
-screen_setpos:
-	mov rax, 1
-	mov rbx, rbp
-	int 80
-	ret
-global screen_getpos
-screen_getpos:
-	mov rax, 2
-	int 80
-	ret
+

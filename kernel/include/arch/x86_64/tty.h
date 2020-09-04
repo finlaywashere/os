@@ -27,6 +27,7 @@ void terminal_putentryat(unsigned char c, uint8_t colour, size_t x, size_t y);
 void scroll(size_t amount);
 void terminal_putchar(char c);
 void terminal_write(const char* data, size_t size);
+void terminal_writec(uint16_t* data, size_t size);
 void terminal_writestring(const char* data);
 void set_vga(uint16_t *VGA);
 

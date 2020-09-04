@@ -3,9 +3,11 @@
 
 void print(char* message){
 	size_t len = strlen(message);
-	for(size_t i = 0; i < len; i++){
-		uint8_t character = message[i];
-		screen_putchar((uint64_t) character);
+	uint16_t newArray[len];
+	for(uint64_t i = 0; i < len; i++){
+		char c = message[i];
+		newArray[i] = (uint16_t) c;
 	}
+	write(0,(uint64_t)&newArray,len);
 }
 

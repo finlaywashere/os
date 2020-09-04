@@ -76,6 +76,18 @@ void terminal_write(const char *data, size_t size) {
 	for (size_t i = 0; i < size; i++)
 		terminal_putchar(data[i]);
 }
+void terminal_writec(uint16_t* data, size_t size){
+	for (size_t i = 0; i < size; i++){
+		uint8_t colour = data[i]>>8;
+		uint8_t character = (uint8_t) data[i];
+		if(colour != 0){
+			terminal_colour = colour;
+		}else{
+			terminal_colour = VGA_COLOUR_LIGHT_GREY | VGA_COLOUR_BLACK << 4;
+		}
+		terminal_putchar(character);
+	}
+}
 void terminal_writestring(const char *data) {
 	terminal_write(data, strlen(data));
 }

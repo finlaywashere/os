@@ -6,7 +6,7 @@ CPPFLAGS?=
 LDFLAGS?=
 LIBS?=
  
-CFLAGS:=$(CFLAGS) -ffreestanding -Wextra -Wall
+CFLAGS:=$(CFLAGS) -ffreestanding -Wextra -Wall -mno-red-zone
 CPPFLAGS:=$(CPPFLAGS) -D__is_libc -Iinclude
 LDFLAGS:=$(LDFLAGS)
 LIBS:=$(LIBS) -nostdlib -lgcc
@@ -16,7 +16,11 @@ LIBC_OBJS=\
 src/syscall_asm.o \
 src/syscall.o \
 src/mem.o \
-src/string.o
+src/string.o \
+src/libc.o \
+src/x86_64/crt0.o \
+src/x86_64/crti.o \
+src/x86_64/crtn.o
 
 OBJS=\
 $(LIBC_OBJS) \

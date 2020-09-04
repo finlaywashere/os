@@ -21,7 +21,8 @@ context_t* create_process(char* path){
 	
 	mapPages((uint32_t)elf->text_ptr,elf->text_vptr,0b101,elf->text_len);
 	
-	mapPages((uint32_t)elf->data_ptr,elf->data_vptr,0b111,elf->data_len);
+	if(elf->data_len != 0)
+		mapPages((uint32_t)elf->data_ptr,elf->data_vptr,0b111,elf->data_len);
 	
 	switch_page_directory(active_directory);
 	context_t* context = kmalloc_p(sizeof(context_t));
