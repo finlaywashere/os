@@ -92,8 +92,16 @@ void set_idt(uint8_t number, uint64_t base, uint16_t selector, uint8_t flags) {
 	idt[number].reserved = 0;
 }
 void isr_handler(registers_t regs) {
-	terminal_writestring("Interrupt: 0x");
+	terminal_writestring("\nException: 0x");
 	terminal_writeint(regs.intNo, 16);
+	terminal_writestring(" with error code 0x");
+	terminal_writeint(regs.errCode,16);
+	terminal_writestring("\nPC: 0x");
+	terminal_writeint(regs.rip,16);
+	terminal_writestring("\nCS: 0x");
+	terminal_writeint(regs.cs,16);
+	terminal_writestring("\nCR2: 0x");
+	terminal_writeint(regs.cr2,16);
 	terminal_writestring("\n");
 	panic("Exception occurred!");
 	outb(0x20, 0x20);

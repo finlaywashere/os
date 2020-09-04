@@ -49,6 +49,8 @@ load_tss:
 extern isr_handler
 isr_common:
 	pushAll
+	mov rbx, cr2
+	push rbx
 	mov ax, ds
 	push rax
 	mov ax, 0x10
@@ -64,7 +66,8 @@ isr_common:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-
+	pop rbx
+	
 	popAll
 	add rsp, 16
 	;call enableInterrupts
