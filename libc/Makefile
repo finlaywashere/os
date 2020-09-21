@@ -13,7 +13,7 @@ LIBS:=$(LIBS) -nostdlib -lgcc
  
  
 LIBC_OBJS=\
-src/syscall_asm.o \
+src/x86_64/syscall_asm.o \
 src/syscall.o \
 src/mem.o \
 src/string.o \
