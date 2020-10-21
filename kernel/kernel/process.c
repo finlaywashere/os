@@ -36,9 +36,11 @@ uint64_t user_function;
 extern void jump(uint64_t pointer);
 
 void map_process(context_t* process){
+	uint64_t active_directory = get_active_directory;
 	switch_page_directory(process->page_directory);
 	process->status = PROCESS_RUNNING;
 	//user_function = 0x0;
 	//jmp_usermode();
 	jump(process->entry_point);
+	switch_page_directory(active_directory);
 }

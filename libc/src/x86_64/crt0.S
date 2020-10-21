@@ -1,4 +1,4 @@
-section text
+section .text
 
 extern main
 extern initialize_standard_library
@@ -21,7 +21,8 @@ _start:
 	; call initialize_standard_library
 
 	; Run the global constructors.
-	call _init
+	; Time to uncomment this later when it doesn't break stuff
+	; call _init
 
 	; Restore argc and argv.
 	pop rdi
