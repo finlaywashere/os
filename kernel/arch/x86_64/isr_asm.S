@@ -124,26 +124,30 @@ extern irq_handler
 
 irq_common_stub:
 	pushAll
-	mov ax, ds
-	push rax
-	mov ax, 0x10
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs,ax
+        mov rbx, cr2
+        push rbx
+        mov ax, ds
+        push rax
+        mov ax, 0x10
+        mov ds, ax
+        mov es, ax
+        mov fs, ax
+        mov gs,ax
 
-	cld
-	call irq_handler
+        call irq_handler
 
-	pop rax
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
+        pop rax
+        mov ds, ax
+        mov es, ax
+        mov fs, ax
+        mov gs, ax
+        pop rbx
 
-	popAll
-	add rsp, 16
-	iretq
+        popAll
+        add rsp, 16
+        ;call enableInterrupts
+        iretq
+
 
 %macro IRQ 2
 global irq%1

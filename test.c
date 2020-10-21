@@ -1,4 +1,8 @@
 #include <libc/syscall.h>
 int main(){
-	print("Test123");
+	print("\nTest123");
+	while(1){
+		
+	}
 }
+

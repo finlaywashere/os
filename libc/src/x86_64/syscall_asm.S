@@ -6,8 +6,8 @@ write:
 	push rcx
 	push rdx
 	
-	mov rbx, rdi
 	mov rax, 0
+	mov rdx, rdi
 	int 80
 	
 	pop rdx
