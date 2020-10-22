@@ -15,4 +15,7 @@ write:
 	pop rbx
 	pop rax
 	ret
-
+global exit_asm
+exit_asm:
+	mov rax, 1
+	int 80

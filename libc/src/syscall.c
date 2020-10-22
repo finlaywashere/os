@@ -10,4 +10,6 @@ void print(char* message){
 	}
 	write(0,(uint64_t)&newArray,len);
 }
-
+void exit(){
+	exit_asm();
+}

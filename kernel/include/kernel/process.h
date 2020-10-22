@@ -24,3 +24,4 @@ context_t* create_process(char* path);
 void map_process(context_t* process);
 registers_t* schedule(registers_t* regs);
 void init_processes();
+void process_exit(registers_t *regs);

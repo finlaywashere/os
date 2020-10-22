@@ -6,6 +6,7 @@ void init_syscalls(){
 }
 
 void exec_syscall(registers_t regs){
+	asm volatile ("cli");
 	uint64_t code = regs.rax;
 	if(code == 0){
 		uint8_t* buf = (uint16_t*) regs.rbx;
@@ -17,5 +18,9 @@ void exec_syscall(registers_t regs){
 			return;
 		if(descriptor == 0)
 			terminal_write(buf,len);
+	}else if(code == 1){
+		// Exit
+		process_exit();
 	}
+	asm volatile ("sti");
 }

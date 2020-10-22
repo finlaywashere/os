@@ -25,12 +25,21 @@ registers_t* schedule(registers_t* regs){
 			newProcess = i%10;
 			break;
 		}
-		if(i == runningProcess+10)
-			return regs;
+		if(i == runningProcess+10){
+			while(1){
+				
+			}
+		}
 	}
 	runningProcess = newProcess;
 	map_process(&processes[runningProcess]);
-	return &processes[runningProcess].state;
+	//return &processes[runningProcess].state;
+	jump(processes[runningProcess].state.rip,processes[runningProcess].state);
+}
+void process_exit(registers_t *regs){
+	processes[runningProcess].status = PROCESS_STOPPED;
+	terminal_writestring("Process exited!");
+	schedule(regs);
 }
 
 context_t* create_process(char* path){
@@ -40,6 +49,7 @@ context_t* create_process(char* path){
        	uint64_t* page_directory = (uint64_t) clone_directory(active_directory);
 	 
 	loaded_elf_t* elf = load_elf(file);
+	uint64_t stack = kmalloc_p(16384);
 	switch_page_directory(page_directory);
 	
 	//uint64_t phys = kmalloc_p(0x200000);
@@ -48,6 +58,7 @@ context_t* create_process(char* path){
 	//mapPage((uint32_t)phys,0x0,0b111);
 	
 	mapPages((uint32_t)elf->text_ptr,elf->text_vptr,0b101,elf->text_len);
+	mapPages((uint32_t)stack,0xFFF00000,0b111,16384);
 	
 	if(elf->data_len != 0)
 		mapPages((uint32_t)elf->data_ptr,elf->data_vptr,0b111,elf->data_len);
@@ -58,6 +69,9 @@ context_t* create_process(char* path){
 	context->entry_point = elf->entry_point;
 	context->status = PROCESS_RUNNABLE;
 	context->page_directory = page_directory;
+	context->state.rip = elf->entry_point;
+	context->state.rsp = (uint32_t)stack;
+	
 	if(currProcess > 9)
 		panic("No processes left!");
 	processes[currProcess] = *context;

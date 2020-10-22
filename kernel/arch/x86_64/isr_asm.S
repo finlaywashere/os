@@ -123,6 +123,7 @@ ISR_NOERRCODE 31
 extern irq_handler
 
 irq_common_stub:
+	sti
 	pushAll
         mov rbx, cr2
         push rbx
@@ -145,7 +146,6 @@ irq_common_stub:
 
         popAll
         add rsp, 16
-        ;call enableInterrupts
         iretq
 
 

@@ -69,8 +69,8 @@ void kernel_main(multiboot_info_t* mbd){
 	context_t* process = create_process("test.bin");
 	terminal_writestring("Successfully loaded ELF file from disk!\n");
 	terminal_writestring("Entering process");
-	map_process(process);
-	jump(process->entry_point,process->state);
+	//map_process(process);
+	//jump(process->entry_point,process->state);
 	//terminal_writestring("Process returned");
 	
 	while(1){
