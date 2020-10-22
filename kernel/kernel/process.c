@@ -4,6 +4,11 @@
 #include <kernel/elf.h>
 #include <kernel/fs/echfs.h>
 #include <kernel/vmm.h>
+#include <arch/x86_64/isr.h>
+
+void init_processes(){
+	
+}
 
 context_t* create_process(char* path){
 	uint64_t id = getFile(path);
@@ -26,6 +31,7 @@ context_t* create_process(char* path){
 	
 	switch_page_directory(active_directory);
 	context_t* context = kmalloc_p(sizeof(context_t));
+	memset(context,0,sizeof(context_t));
 	context->entry_point = elf->entry_point;
 	context->status = PROCESS_RUNNABLE;
 	context->page_directory = page_directory;
@@ -33,7 +39,7 @@ context_t* create_process(char* path){
 }
 extern void jmp_usermode();
 uint64_t user_function;
-extern void jump(uint64_t pointer);
+extern void jump(uint64_t pointer, registers_t registers);
 
 void map_process(context_t* process){
 	uint64_t active_directory = get_active_directory;
@@ -41,6 +47,6 @@ void map_process(context_t* process){
 	process->status = PROCESS_RUNNING;
 	//user_function = 0x0;
 	//jmp_usermode();
-	jump(process->entry_point);
+	jump(process->entry_point,process->state);
 	switch_page_directory(active_directory);
 }

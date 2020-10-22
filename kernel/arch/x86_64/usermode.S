@@ -1,7 +1,24 @@
 bits 64
 global jump
 jump:
-	jmp rdi
+	mov r8, rdi
+	; Pop rdi twice to get the pointer outta the stack
+	pop rdi
+	pop rdi
+        pop rsi
+        pop rbp
+	mov r9, rsp
+        pop rsp
+	mov r10, rsp
+	mov rsp, r9
+        pop rbx
+        pop rdx
+        pop rcx
+        pop rax
+	mov rsp, r10
+	mov r12, 0
+	mov r9, 0
+	jmp r8
 
 global jmp_usermode
 jmp_usermode:

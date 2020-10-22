@@ -1,5 +1,4 @@
 section .text
-
 extern main
 extern initialize_standard_library
 extern _init
@@ -7,6 +6,7 @@ extern exit
 
 global _start
 _start:
+	;mov rsp, stack_top ; Sets rsp to the stack top which grows downwards
 	; Set up end of the stack frame linked list.
 	mov rbp, 0
 	push rbp ; rip=0

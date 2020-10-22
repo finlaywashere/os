@@ -1,6 +1,6 @@
 #include <libc/syscall.h>
 int main(){
-	print("\nTest123");
+	print("\nTest1234");
 	while(1){
 		
 	}
