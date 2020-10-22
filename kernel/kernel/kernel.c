@@ -35,7 +35,9 @@ void kernel_main(multiboot_info_t* mbd){
         init_pmm(mbd);
         terminal_writestring("Successfully initialized PMM full\n");
         init_paging();
-        terminal_writestring("Successfully initialized paging\n");
+	terminal_writestring("Successfully initialized paging\n");
+	init_processes();
+	terminal_writestring("Successfully initialized processes\n");
 	init_gdt();
 	terminal_writestring("Successfully initialized GDT\n");
 	init_tss();
@@ -68,7 +70,8 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring("Successfully loaded ELF file from disk!\n");
 	terminal_writestring("Entering process");
 	map_process(process);
-	terminal_writestring("Process returned");
+	jump(process->entry_point,process->state);
+	//terminal_writestring("Process returned");
 	
 	while(1){
 		// Kernel loop

@@ -1,10 +1,10 @@
 bits 64
 %macro pushAll 0
+	push rsp
 	push rax
 	push rcx
 	push rdx
 	push rbx
-	push rsp
 	push rbp
 	push rsi
 	push rdi
@@ -13,11 +13,11 @@ bits 64
 	pop rdi
 	pop rsi
 	pop rbp
-	pop rsp
 	pop rbx
 	pop rdx
 	pop rcx
 	pop rax
+	pop rsp
 %endmacro
 
 global enableInterrupts

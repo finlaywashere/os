@@ -23,7 +23,7 @@ typedef struct idt_ptr idt_ptr_t;
 struct registers{
     uint64_t ds;
     uint64_t cr2;
-    uint64_t rdi, rsi, rbp, rsp, rbx, rdx, rcx, rax;
+    uint64_t rdi, rsi, rbp, rbx, rdx, rcx, rax,rsp;
     uint64_t intNo, errCode;
     uint64_t rip, cs, eflags, useresp, ss;
 }__attribute__((packed));

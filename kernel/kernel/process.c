@@ -6,8 +6,31 @@
 #include <kernel/vmm.h>
 #include <arch/x86_64/isr.h>
 
+context_t* processes;
+int currProcess = 0;
+
 void init_processes(){
-	
+	processes = kmalloc_p(sizeof(context_t)*10);
+	memset(processes,0,sizeof(context_t)*10);
+}
+int runningProcess = 0;
+registers_t* schedule(registers_t* regs){
+	if(processes[runningProcess].status == PROCESS_RUNNING){
+		processes[runningProcess].state = *regs;
+        	processes[runningProcess].status = PROCESS_RUNNABLE;
+	}
+	int newProcess;
+	for(int i = runningProcess+1; i <= runningProcess+10;i++){
+		if(processes[i%10].status == PROCESS_RUNNABLE){
+			newProcess = i%10;
+			break;
+		}
+		if(i == runningProcess+10)
+			return regs;
+	}
+	runningProcess = newProcess;
+	map_process(&processes[runningProcess]);
+	return &processes[runningProcess].state;
 }
 
 context_t* create_process(char* path){
@@ -35,11 +58,13 @@ context_t* create_process(char* path){
 	context->entry_point = elf->entry_point;
 	context->status = PROCESS_RUNNABLE;
 	context->page_directory = page_directory;
+	if(currProcess > 9)
+		panic("No processes left!");
+	processes[currProcess] = *context;
+	currProcess++;
+	runningProcess = currProcess-1;
 	return context;
 }
-extern void jmp_usermode();
-uint64_t user_function;
-extern void jump(uint64_t pointer, registers_t registers);
 
 void map_process(context_t* process){
 	uint64_t active_directory = get_active_directory;
@@ -47,6 +72,6 @@ void map_process(context_t* process){
 	process->status = PROCESS_RUNNING;
 	//user_function = 0x0;
 	//jmp_usermode();
-	jump(process->entry_point,process->state);
-	switch_page_directory(active_directory);
+	//jump(process->entry_point,process->state);
+	//switch_page_directory(active_directory);
 }
