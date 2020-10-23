@@ -17,9 +17,6 @@ void init_gdt(){
 	gdt_ptr = newGDT->pointer;
 	load_gdt();
 }
-uint64_t getrsp(){
-	__asm__ ("movq %rsp, %rax");
-}
 tss_t *tss;
 void init_tss(){
 	uint64_t tss_ptr = ((uint64_t)&tss_mem)|0xffff800000000000;
@@ -31,11 +28,12 @@ void init_tss(){
 	newGDT->tss.base_high = (tss_ptr >> 24) & 0xFF;
 	newGDT->tss.base_higher = (tss_ptr >> 32);
 	
-	set_kernel_stack(getrsp());
+	register uint64_t rsp asm ("rsp");
+	
+	set_kernel_stack(rsp);
 	
 	load_tss();
 }
 void set_kernel_stack(uint64_t stack){
-	tss->rsp0_low = (uint32_t) stack;
-	tss->rsp0_high = stack>>32;
+	tss->rsp0 = stack;
 }
