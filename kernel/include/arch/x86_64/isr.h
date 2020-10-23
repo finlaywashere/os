@@ -52,7 +52,7 @@ void isr_handler(registers_t);
 
 #define SYSCALL 80
 
-typedef void (*isr_t)(registers_t);
+typedef registers_t (*isr_t)(registers_t);
 void register_interrupt_handler(uint8_t num, isr_t handler);
 
 extern void load_idt();

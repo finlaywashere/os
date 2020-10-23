@@ -17,7 +17,6 @@ bits 64
 	pop rdx
 	pop rcx
 	pop rax
-	pop rsp
 %endmacro
 
 global enableInterrupts
@@ -69,6 +68,7 @@ isr_common:
 	pop rbx
 	
 	popAll
+	pop rsp
 	add rsp, 16
 	;call enableInterrupts
 	iretq
@@ -123,7 +123,7 @@ ISR_NOERRCODE 31
 extern irq_handler
 
 irq_common_stub:
-	sti
+	cli
 	pushAll
         mov rbx, cr2
         push rbx
@@ -145,7 +145,9 @@ irq_common_stub:
         pop rbx
 
         popAll
-        add rsp, 16
+	pop rsp
+	sti
+        add rsp, 8
         iretq
 
 

@@ -122,6 +122,7 @@ void irq_handler(registers_t regs) {
 
 	if (interrupt_handlers[regs.intNo] != 0) {
 		isr_t handler = interrupt_handlers[regs.intNo];
-		handler(regs);
+		regs = handler(regs);
 	}
+	return;
 }

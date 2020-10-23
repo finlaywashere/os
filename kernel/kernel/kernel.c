@@ -43,6 +43,7 @@ void kernel_main(multiboot_info_t* mbd){
 	init_tss();
 	terminal_writestring("Successfully initialized TSS\n");
 	init_idt();
+	asm ("cli");
 	terminal_writestring("Successfully initialized IDT\n");
 	init_syscalls();
 	terminal_writestring("Successfully initialized syscalls\n");
@@ -69,6 +70,7 @@ void kernel_main(multiboot_info_t* mbd){
 	context_t* process = create_process("test.bin");
 	terminal_writestring("Successfully loaded ELF file from disk!\n");
 	terminal_writestring("Entering process");
+	asm ("sti");
 	//map_process(process);
 	//jump(process->entry_point,process->state);
 	//terminal_writestring("Process returned");

@@ -7,9 +7,9 @@
 #include <kernel/process.h>
 
 uint64_t ticks = 0;
-void timer_callback(registers_t regs) {
+registers_t timer_callback(registers_t regs) {
 	ticks++;
-	regs = *schedule(&regs);
+	return *schedule(&regs);
 }
 void init_pit() {
 	register_interrupt_handler(IRQ0, &timer_callback);

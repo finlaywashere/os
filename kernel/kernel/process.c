@@ -26,15 +26,13 @@ registers_t* schedule(registers_t* regs){
 			break;
 		}
 		if(i == runningProcess+10){
-			while(1){
-				
-			}
+			return regs;
 		}
 	}
 	runningProcess = newProcess;
 	map_process(&processes[runningProcess]);
-	//return &processes[runningProcess].state;
-	jump(processes[runningProcess].state.rip,processes[runningProcess].state);
+	return &processes[runningProcess].state;
+	//jump(processes[runningProcess].state.rip,processes[runningProcess].state);
 }
 void process_exit(registers_t *regs){
 	processes[runningProcess].status = PROCESS_STOPPED;
@@ -70,7 +68,11 @@ context_t* create_process(char* path){
 	context->status = PROCESS_RUNNABLE;
 	context->page_directory = page_directory;
 	context->state.rip = elf->entry_point;
-	context->state.rsp = (uint32_t)stack;
+	context->state.userrsp = 0xFFF00000;
+	context->state.cs = 0x08; //0x18;
+	register uint64_t rsp asm ("rsp");
+	context->state.rsp = rsp;
+	//context->state.ss = 0x20;
 	
 	if(currProcess > 9)
 		panic("No processes left!");
