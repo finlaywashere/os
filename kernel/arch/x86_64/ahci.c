@@ -65,7 +65,7 @@ int read(HBA_PORT *port, uint32_t startl, uint32_t starth, uint32_t count, uint1
 	int i = cmdheader->prdtl-1;
 	cmdtbl->prdt_entry[i].dba = (uint32_t)buf;
 	cmdtbl->prdt_entry[i].dbau = ((uint64_t)buf)>>32;
-	cmdtbl->prdt_entry[i].dbc = (count<<9)-1; //512 bytes per sector
+	cmdtbl->prdt_entry[i].dbc = 8*1024-1;//(count<<9)-1; //512 bytes per sector
 	cmdtbl->prdt_entry[i].i = i;
 	
 	//Setup command

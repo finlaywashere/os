@@ -46,7 +46,8 @@ kernel/timer.o \
 kernel/fs/echfs.o \
 kernel/vmm.o \
 kernel/elf.o \
-kernel/process.o
+kernel/process.o \
+kernel/syscall.o
 
 OBJS=\
 $(KERNEL_OBJS) \

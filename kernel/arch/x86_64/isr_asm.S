@@ -1,10 +1,10 @@
 bits 64
 %macro pushAll 0
+	push rsp
 	push rax
 	push rcx
 	push rdx
 	push rbx
-	push rsp
 	push rbp
 	push rsi
 	push rdi
@@ -13,7 +13,6 @@ bits 64
 	pop rdi
 	pop rsi
 	pop rbp
-	pop rsp
 	pop rbx
 	pop rdx
 	pop rcx
@@ -49,6 +48,8 @@ load_tss:
 extern isr_handler
 isr_common:
 	pushAll
+	mov rbx, cr2
+	push rbx
 	mov ax, ds
 	push rax
 	mov ax, 0x10
@@ -64,8 +65,10 @@ isr_common:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-
+	pop rbx
+	
 	popAll
+	pop rsp
 	add rsp, 16
 	;call enableInterrupts
 	iretq
@@ -121,30 +124,36 @@ extern irq_handler
 
 irq_common_stub:
 	pushAll
-	mov ax, ds
-	push rax
-	mov ax, 0x10
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs,ax
+        mov rbx, cr2
+        push rbx
+        mov ax, ds
+        push rax
+        mov ax, 0x18
+        mov ds, ax
+        mov es, ax
+        mov fs, ax
+        mov gs,ax
 
-	cld
-	call irq_handler
+        call irq_handler
 
-	pop rax
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
+        pop rax
+        mov ds, ax
+        mov es, ax
+        mov fs, ax
+        mov gs, ax
+        pop rbx
 
-	popAll
-	add rsp, 16
-	iretq
+        popAll
+	pop rsp
+        add rsp, 16
+	sti
+        iretq
+
 
 %macro IRQ 2
 global irq%1
 irq%1:
+	cli
 	push byte 0
 	push byte %2
 	jmp irq_common_stub

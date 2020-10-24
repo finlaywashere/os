@@ -14,6 +14,7 @@
 #include "arch/x86_64/mbr.h"
 #include "arch/x86_64/acpi.h"
 #include "kernel/process.h"
+#include "kernel/syscall.h"
 
 void panic(char *message){
 	asm volatile("cli");
@@ -21,6 +22,8 @@ void panic(char *message){
 	terminal_writestring(message);
 	while(1);
 }
+
+extern void jump();
 
 void kernel_main(multiboot_info_t* mbd){
 	mbd = (multiboot_info_t*) (((uint64_t)mbd)+0xffffffff80000000);
@@ -34,13 +37,18 @@ void kernel_main(multiboot_info_t* mbd){
         init_pmm(mbd);
         terminal_writestring("Successfully initialized PMM full\n");
         init_paging();
-        terminal_writestring("Successfully initialized paging\n");
+	terminal_writestring("Successfully initialized paging\n");
+	init_processes();
+	terminal_writestring("Successfully initialized processes\n");
 	init_gdt();
 	terminal_writestring("Successfully initialized GDT\n");
 	init_tss();
 	terminal_writestring("Successfully initialized TSS\n");
 	init_idt();
+	asm ("cli");
 	terminal_writestring("Successfully initialized IDT\n");
+	init_syscalls();
+	terminal_writestring("Successfully initialized syscalls\n");
 	init_timer();
 	terminal_writestring("Successfully initialized PIT\n");
 	init_acpi();
@@ -64,8 +72,10 @@ void kernel_main(multiboot_info_t* mbd){
 	context_t* process = create_process("test.bin");
 	terminal_writestring("Successfully loaded ELF file from disk!\n");
 	terminal_writestring("Entering process");
-	map_process(process);
-	terminal_writestring("Process returned");
+	asm ("sti");
+	//map_process(process);
+	//jump(process->entry_point,process->state);
+	//terminal_writestring("Process returned");
 	
 	while(1){
 		// Kernel loop

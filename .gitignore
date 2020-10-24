@@ -3,3 +3,7 @@ isodir
 sysroot
 disk.iso.lock
 *.o
+*.a
+*.bin
+*.d
+disk_mnt/

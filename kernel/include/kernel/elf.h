@@ -1,3 +1,4 @@
+#pragma once
 #include <stdint.h>
 #include <kernel/fs/echfs.h>
 #define NO_ARCH 0
@@ -23,10 +24,14 @@ struct elf_header{
 	uint32_t elfVersion;
 	uint64_t entryPosition;
 	uint64_t headerTablePosition;
+	uint64_t sectionTablePosition;
 	uint32_t flags;
 	uint16_t headerSize;
 	uint16_t headerEntrySize;
 	uint16_t numHeaderEntries;
+	uint16_t sectionSize;
+	uint16_t sectionEntrySize;
+	uint16_t numSectionEntries;
 	uint16_t headerNameIndex;
 }__attribute__((packed));
 typedef struct elf_header elf_header_t;
@@ -52,4 +57,15 @@ struct elf_program_header{
 }__attribute__((packed));
 typedef struct elf_program_header elf_program_header_t;
 
-uint64_t load_elf(directory_entry_t* file);
+struct loaded_elf{
+	uint64_t text_ptr;
+	uint64_t text_vptr;
+	uint64_t text_len;
+	uint64_t data_ptr;
+	uint64_t data_vptr;
+	uint64_t data_len;
+	uint64_t entry_point;
+};
+typedef struct loaded_elf loaded_elf_t;
+
+loaded_elf_t* load_elf(directory_entry_t* file);

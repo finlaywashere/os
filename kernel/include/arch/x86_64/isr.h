@@ -22,9 +22,10 @@ typedef struct idt_ptr idt_ptr_t;
 
 struct registers{
     uint64_t ds;
-    uint64_t rdi, rsi, rbp, rsp, rbx, rdx, rcx, rax;
+    uint64_t cr2;
+    uint64_t rdi, rsi, rbp, rbx, rdx, rcx, rax,rsp;
     uint64_t intNo, errCode;
-    uint64_t rip, cs, eflags, useresp, ss;
+    uint64_t rip, cs, eflags, userrsp, ss;
 }__attribute__((packed));
 typedef struct registers registers_t;
 
@@ -51,7 +52,7 @@ void isr_handler(registers_t);
 
 #define SYSCALL 80
 
-typedef void (*isr_t)(registers_t);
+typedef registers_t (*isr_t)(registers_t);
 void register_interrupt_handler(uint8_t num, isr_t handler);
 
 extern void load_idt();

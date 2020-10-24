@@ -76,7 +76,7 @@ uint8_t *readFile(directory_entry_t *file,uint8_t *file_buf){
 	while(1){
 		uint64_t alloc_val = allocation_table[sector];
 		
-		read(port,sector,0,1,file_buf+(curr*identity_block->bytesPerBlock));
+		read(port,sector,0,512,file_buf+(curr*identity_block->bytesPerBlock));
 		curr++;
 		
 		if(alloc_val > 0 && alloc_val < 0xFFFFFFFFFFFFFFEF){
