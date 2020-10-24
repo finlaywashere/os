@@ -144,7 +144,7 @@ irq_common_stub:
         pop rbx
 
         popAll
-	pop r8
+	pop rsp
         add rsp, 16
 	sti
         iretq
