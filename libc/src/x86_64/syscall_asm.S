@@ -19,3 +19,8 @@ global exit_asm
 exit_asm:
 	mov rax, 1
 	int 80
+global exec_asm
+exec_asm:
+	mov rax, 2
+	mov rbx, rdi
+	int 80

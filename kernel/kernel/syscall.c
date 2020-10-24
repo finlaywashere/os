@@ -23,5 +23,15 @@ registers_t exec_syscall(registers_t regs){
 		// Exit
 		regs = *process_exit(&regs);
 		return regs;
+	}else if(code == 2){
+		// Exec
+		uint8_t* buf = (uint8_t*) regs.rbx;
+                uint64_t len = strlen(buf);
+		uint64_t start = (uint64_t) buf;
+                uint64_t end = ((uint64_t)buf) + len;
+                if(start >= 0xffff800000000000 || end >= 0xffff800000000000 || start < 0 || end < 0)
+                        return;
+		context_t* process = create_process(buf);
+		return process->state;
 	}
 }

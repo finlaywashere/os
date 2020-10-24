@@ -113,16 +113,17 @@ void register_interrupt_handler(uint8_t num, isr_t handler) {
 }
 
 void irq_handler(registers_t regs) {
-	if (regs.intNo >= 40) {
-		// Send reset signal to slave
-		outb(0xA0, 0x20);
-	}
-	// Send reset signal to master
-	outb(0x20, 0x20);
+	int code = regs.intNo;
 
-	if (interrupt_handlers[regs.intNo] != 0) {
-		isr_t handler = interrupt_handlers[regs.intNo];
+	if (interrupt_handlers[code] != 0) {
+		isr_t handler = interrupt_handlers[code];
 		regs = handler(regs);
 	}
+	if (code >= 40) {
+                // Send reset signal to slave
+                outb(0xA0, 0x20);
+        }
+        // Send reset signal to master
+        outb(0x20, 0x20);
 	return;
 }

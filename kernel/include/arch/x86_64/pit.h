@@ -1,5 +1,5 @@
 #include <stdint.h>
 
-#define FREQUENCY 1000
+#define FREQUENCY 20
 
 void init_pit();

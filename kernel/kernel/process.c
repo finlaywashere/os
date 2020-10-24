@@ -5,7 +5,6 @@
 #include <kernel/fs/echfs.h>
 #include <kernel/vmm.h>
 #include <arch/x86_64/isr.h>
-#include <kernel/kernel.h>
 
 context_t* processes;
 int currProcess = 1;
@@ -13,22 +12,6 @@ int currProcess = 1;
 void init_processes(){
 	processes = kmalloc_p(sizeof(context_t)*10);
 	memset(processes,0,sizeof(context_t)*10);
-	uint64_t* active_directory = (uint64_t*) get_active_directory();
-
-	uint64_t (*k_ptr)() = &kloop;
-		
-	context_t* context = kmalloc_p(sizeof(context_t));
-        memset(context,0,sizeof(context_t));
-        context->entry_point = k_ptr;
-        context->page_directory = active_directory;
-        context->state.rip = k_ptr;
-        context->state.userrsp = 0x0;
-        context->state.cs = 0x8;
-        register uint64_t rsp asm ("rsp");
-        context->state.rsp = rsp-0x8;
-        context->state.ds = 0x10;
-        context->state.ss = 0x10;
-	processes[0] = *context;
 }
 int runningProcess = 0;
 registers_t* schedule(registers_t* regs){
@@ -38,7 +21,8 @@ registers_t* schedule(registers_t* regs){
 	}
 	int newProcess = 0;
 	for(int i = runningProcess+1; i <= runningProcess+10;i++){
-		if(processes[i%10].status == PROCESS_RUNNABLE && i % 10 != 0){
+		int status = processes[i%10].status;
+		if((status == PROCESS_RUNNABLE || status == PROCESS_RUNNING) && i % 10 != 0){
 			newProcess = i%10;
 			break;
 		}
@@ -85,9 +69,13 @@ context_t* create_process(char* path){
 	context->state.userrsp = 0xFFF00000;
 	context->state.cs = 0x1b;
 	register uint64_t rsp asm ("rsp");
-	context->state.rsp = rsp-0x8;
+	if(currProcess == 0)
+		context->state.rsp = rsp-0x18;
+	else
+		context->state.rsp = rsp-0x8;
 	context->state.ds = 0x23;
 	context->state.ss = 0x23;
+	context->state.eflags = 0b1000000010;
 	
 	if(currProcess > 9)
 		panic("No processes left!");

@@ -68,8 +68,9 @@ isr_common:
 	pop rbx
 	
 	popAll
-	pop rsp
+	pop r8
 	add rsp, 16
+	sti
 	;call enableInterrupts
 	iretq
 %macro ISR_NOERRCODE 1
@@ -146,14 +147,14 @@ irq_common_stub:
         popAll
 	pop r8
         add rsp, 16
-	sti
+	;sti
         iretq
 
 
 %macro IRQ 2
 global irq%1
 irq%1:
-	cli
+	;cli
 	push byte 0
 	push byte %2
 	jmp irq_common_stub

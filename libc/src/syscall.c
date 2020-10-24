@@ -13,3 +13,6 @@ void print(char* message){
 void exit(){
 	exit_asm();
 }
+void exec(char* file){
+	exec_asm((uint64_t) file);
+}

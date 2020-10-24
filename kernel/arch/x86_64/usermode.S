@@ -1,4 +1,8 @@
 bits 64
+global kloop
+kloop:
+	jmp kloop
+
 extern irq0
 global jump
 jump:

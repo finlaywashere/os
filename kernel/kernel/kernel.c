@@ -23,7 +23,7 @@ void panic(char *message){
 	while(1);
 }
 
-extern void jump();
+extern void kloop();
 
 void kernel_main(multiboot_info_t* mbd){
 	mbd = (multiboot_info_t*) (((uint64_t)mbd)+0xffffffff80000000);
@@ -33,20 +33,19 @@ void kernel_main(multiboot_info_t* mbd){
 	terminal_writestring(bootloaderName);
 	terminal_writestring("\n");
 	init_pmm_base(mbd);
-        terminal_writestring("Successfully initialized PMM base\n");
         init_pmm(mbd);
-        terminal_writestring("Successfully initialized PMM full\n");
+        terminal_writestring("Successfully initialized PMM\n");
         init_paging();
 	terminal_writestring("Successfully initialized paging\n");
 	init_processes();
 	terminal_writestring("Successfully initialized processes\n");
 	init_gdt();
-	terminal_writestring("Successfully initialized GDT\n");
+	//terminal_writestring("Successfully initialized GDT\n");
 	init_tss();
-	terminal_writestring("Successfully initialized TSS\n");
+	//terminal_writestring("Successfully initialized TSS\n");
 	init_idt();
 	asm ("cli");
-	terminal_writestring("Successfully initialized IDT\n");
+	terminal_writestring("Successfully initialized GDT,IDT,TSS\n");
 	init_syscalls();
 	terminal_writestring("Successfully initialized syscalls\n");
 	init_timer();
@@ -54,16 +53,16 @@ void kernel_main(multiboot_info_t* mbd){
 	init_acpi();
 	terminal_writestring("Successfully initialized ACPI\n");
 	init_keyboard();
-	terminal_writestring("Successfully initialized keyboard\n");
+	//terminal_writestring("Successfully initialized keyboard\n");
 	mbr_table_t* mbr = init_mbr();
-	terminal_writestring("MBR signature: 0x");
-	uint16_t mbr_sig = mbr->bootsectorSignature;
-	terminal_writeint(mbr_sig & 0xFF,16);
-	terminal_writestring(" - 0x");
-	terminal_writeint(mbr_sig>>8,16);
-	terminal_writestring("\nSuccessfully initialized MBR\n");
+	//terminal_writestring("MBR signature: 0x");
+	//uint16_t mbr_sig = mbr->bootsectorSignature;
+	//terminal_writeint(mbr_sig & 0xFF,16);
+	//terminal_writestring(" - 0x");
+	//terminal_writeint(mbr_sig>>8,16);
+	//terminal_writestring("\nSuccessfully initialized MBR\n");
 	init_pci();
-	terminal_writestring("Successfully initialized PCI\n");
+	//terminal_writestring("Successfully initialized PCI\n");
 	init_ahci();
 	terminal_writestring("Successfully initialized AHCI\n");
 	init_echfs();
@@ -76,9 +75,5 @@ void kernel_main(multiboot_info_t* mbd){
 	//map_process(process);
 	//jump(process->entry_point,process->state);
 	//terminal_writestring("Process returned");
-}
-void kloop(){
-	while(1){
-		
-	}
+	kloop();
 }
