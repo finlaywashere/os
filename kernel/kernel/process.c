@@ -69,10 +69,11 @@ context_t* create_process(char* path){
 	context->page_directory = page_directory;
 	context->state.rip = elf->entry_point;
 	context->state.userrsp = 0xFFF00000;
-	context->state.cs = 0x08; //0x18;
+	context->state.cs = 0x1b;
 	register uint64_t rsp asm ("rsp");
 	context->state.rsp = rsp;
-	//context->state.ss = 0x20;
+	context->state.ds = 0x23;
+	context->state.ss = 0x23;
 	
 	if(currProcess > 9)
 		panic("No processes left!");
