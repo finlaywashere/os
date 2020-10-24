@@ -76,8 +76,9 @@ void kernel_main(multiboot_info_t* mbd){
 	//map_process(process);
 	//jump(process->entry_point,process->state);
 	//terminal_writestring("Process returned");
-	
+}
+void kloop(){
 	while(1){
-		// Kernel loop
+		
 	}
 }

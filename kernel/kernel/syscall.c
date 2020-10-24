@@ -1,11 +1,12 @@
 #include <kernel/syscall.h>
 #include <arch/x86_64/tty.h>
+#include <kernel/process.h>
 
 void init_syscalls(){
 	register_interrupt_handler(SYSCALL, &exec_syscall);
 }
 
-void exec_syscall(registers_t regs){
+registers_t exec_syscall(registers_t regs){
 	regs.rsp += 0x8;
 	uint64_t code = regs.rax;
 	if(code == 0){
@@ -20,6 +21,7 @@ void exec_syscall(registers_t regs){
 			terminal_write(buf,len);
 	}else if(code == 1){
 		// Exit
-		process_exit();
+		regs = *process_exit(&regs);
+		return regs;
 	}
 }
