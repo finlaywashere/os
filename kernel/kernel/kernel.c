@@ -23,6 +23,8 @@ void panic(char *message){
 	while(1);
 }
 
+extern void jump();
+
 void kernel_main(multiboot_info_t* mbd){
 	mbd = (multiboot_info_t*) (((uint64_t)mbd)+0xffffffff80000000);
 	terminal_initialize();

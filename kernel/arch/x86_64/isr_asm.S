@@ -123,13 +123,12 @@ ISR_NOERRCODE 31
 extern irq_handler
 
 irq_common_stub:
-	cli
 	pushAll
         mov rbx, cr2
         push rbx
         mov ax, ds
         push rax
-        mov ax, 0x10
+        mov ax, 0x18
         mov ds, ax
         mov es, ax
         mov fs, ax
@@ -145,15 +144,16 @@ irq_common_stub:
         pop rbx
 
         popAll
-	pop rsp
+	pop r8
+        add rsp, 16
 	sti
-        add rsp, 8
         iretq
 
 
 %macro IRQ 2
 global irq%1
 irq%1:
+	cli
 	push byte 0
 	push byte %2
 	jmp irq_common_stub
