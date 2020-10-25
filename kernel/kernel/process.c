@@ -22,7 +22,7 @@ registers_t* schedule(registers_t* regs){
 	int newProcess = 0;
 	for(int i = runningProcess+1; i <= runningProcess+10;i++){
 		int status = processes[i%10].status;
-		if((status == PROCESS_RUNNABLE || status == PROCESS_RUNNING) && i % 10 != 0){
+		if(status == PROCESS_RUNNABLE){
 			newProcess = i%10;
 			break;
 		}
@@ -39,10 +39,11 @@ registers_t* process_exit(registers_t *regs){
 	terminal_writestring(" exited!");
 	return schedule(regs);
 }
+void pause_process(){
+	processes[runningProcess].status = PROCESS_RUNNABLE;
+}
 void save_process(registers_t *regs){
 	processes[runningProcess].state = *regs;
-	// Idk why this works
-	processes[runningProcess].state.rip -= 2;
 }
 
 context_t* create_process(char* path){

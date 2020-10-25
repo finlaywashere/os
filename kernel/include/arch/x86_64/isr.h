@@ -25,7 +25,10 @@ struct registers{
     uint64_t cr2;
     uint64_t rdi, rsi, rbp, rbx, rdx, rcx, rax,rsp;
     uint64_t intNo, errCode;
-    uint64_t rip, cs, eflags, userrsp, ss;
+    uint64_t rip;
+    uint64_t cs;
+    uint64_t eflags, userrsp;
+    uint64_t ss;
 }__attribute__((packed));
 typedef struct registers registers_t;
 
