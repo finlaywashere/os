@@ -31,7 +31,9 @@ registers_t exec_syscall(registers_t regs){
                 uint64_t end = ((uint64_t)buf) + len;
                 if(start >= 0xffff800000000000 || end >= 0xffff800000000000 || start < 0 || end < 0)
                         return;
+		save_process(&regs);
 		context_t* process = create_process(buf);
+		map_process(process);
 		return process->state;
 	}
 }

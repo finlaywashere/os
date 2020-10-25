@@ -52,6 +52,13 @@ void scroll(size_t amount) {
 }
 void terminal_putchar(char c) {
 	unsigned char uc = c;
+	 if (terminal_column >= VGA_WIDTH) {
+                terminal_column = 0;
+                terminal_row++;
+        }
+	if (terminal_row >= VGA_HEIGHT) {
+                scroll(1);
+        }
 	if (uc == '\n') {
 		terminal_row = terminal_row + 1;
 		terminal_column = 0;
@@ -61,13 +68,6 @@ void terminal_putchar(char c) {
 		terminal_column--;
 		terminal_buffer[terminal_row*VGA_WIDTH+terminal_column] = 0x0;
 		return;
-	}
-	if (terminal_column == VGA_WIDTH) {
-		terminal_column = 0;
-		terminal_row++;
-	}
-	if (terminal_row == VGA_HEIGHT) {
-		scroll(1);
 	}
 	terminal_putentryat(uc, terminal_colour, terminal_column, terminal_row);
 	terminal_column++;

@@ -90,6 +90,9 @@ int isMapped(uint64_t virtual){
 uint64_t get_active_directory(){
 	return active_directory;
 }
+uint64_t get_boot_directory(){
+	return boot_directory;
+}
 void unmapPage(uint64_t virtual) {
 	uint64_t p4_index = virtual >> 39 & 0b111111111;
         uint64_t p3_index = virtual >> 30 & 0b111111111;
@@ -176,4 +179,5 @@ void init_paging(){
 	
 	active_directory = (page_directory_t*)((uint64_t)active_directory + 0xffffffff80000000);
 	active_directory->tables[0] = 0x0;
+	boot_directory = active_directory;
 }

@@ -25,3 +25,5 @@ void map_process(context_t* process);
 registers_t* schedule(registers_t* regs);
 void init_processes();
 registers_t* process_exit(registers_t *regs);
+void save_process(registers_t *regs);
+

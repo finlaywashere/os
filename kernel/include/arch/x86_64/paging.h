@@ -29,6 +29,7 @@ uint64_t tableToMapping(uint64_t entry);
 uint64_t mapTable(uint64_t entry);
 uint64_t toPhysical(uint64_t virtual);
 uint64_t get_active_directory();
+uint64_t get_boot_directory();
 void switch_page_directory(uint64_t *pd);
 
 

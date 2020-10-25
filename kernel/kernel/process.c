@@ -34,15 +34,23 @@ registers_t* schedule(registers_t* regs){
 }
 registers_t* process_exit(registers_t *regs){
 	processes[runningProcess].status = PROCESS_STOPPED;
-	terminal_writestring("Process exited!");
+	terminal_writestring("Process ");
+	terminal_writeint(runningProcess,10);
+	terminal_writestring(" exited!");
 	return schedule(regs);
+}
+void save_process(registers_t *regs){
+	processes[runningProcess].state = *regs;
+	// Idk why this works
+	processes[runningProcess].state.rip -= 2;
 }
 
 context_t* create_process(char* path){
 	uint64_t id = getFile(path);
         directory_entry_t *file = getFileById(id);
-        uint64_t* active_directory = (uint64_t*) get_active_directory();
-       	uint64_t* page_directory = (uint64_t) clone_directory(active_directory);
+	uint64_t* active_directory = (uint64_t*) get_active_directory();
+        uint64_t* boot_directory = (uint64_t*) get_boot_directory();
+       	uint64_t* page_directory = (uint64_t) clone_directory(boot_directory);
 	 
 	loaded_elf_t* elf = load_elf(file);
 	uint64_t stack = kmalloc_p(16384);
