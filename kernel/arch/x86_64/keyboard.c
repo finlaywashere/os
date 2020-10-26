@@ -93,7 +93,7 @@ void keyboard_callback(registers_t regs) {
 			key &= 0xFF00;
 			key |= asciiKey;
 		}
-		//terminal_putchar(key);
+		terminal_putchar(key);
 
 		int found = 0;
 		for (int i = 0; i < 32; i++) {

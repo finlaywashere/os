@@ -46,21 +46,15 @@ registers_t exec_syscall(registers_t regs){
 				regs.rax = 2;
 				return regs;
 			}
-			int curr = 0;
-			while(1){
-				for(int i = curr; i < len; i++){
-					uint16_t key = getCurrKey();
-					if(key == 0x0)
-						break;
-					nextKey();
-					buf[i] = key;
-					curr = i;
-				}
-				if(curr == 31){
-					regs.rax = 0;
-					return regs;
-				}
+			for(int i = 0; i < len; i++){
+				uint16_t key = getCurrKey();
+				if(key == 0x0)
+					break;
+				nextKey();
+				buf[i] = key;
 			}
+			regs.rax = 0;
+			return regs;
 		}
 	}else if(code == EXIT){
 		// Exit
