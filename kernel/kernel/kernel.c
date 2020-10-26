@@ -15,6 +15,7 @@
 #include "arch/x86_64/acpi.h"
 #include "kernel/process.h"
 #include "kernel/syscall.h"
+#include "arch/x86_64/cpuid.h"
 
 void panic(char *message){
 	asm volatile("cli");
@@ -65,6 +66,16 @@ void kernel_main(multiboot_info_t* mbd){
 	//terminal_writestring("Successfully initialized PCI\n");
 	init_ahci();
 	terminal_writestring("Successfully initialized AHCI\n");
+	
+	terminal_writestring("CPU Manufacturer: ");
+	terminal_writestring(getCPUManufacturer());
+	terminal_writestring("\n");
+	
+	cpu_info_t* cpuinfo = getCPUInfo();
+	terminal_writestring("Family: 0x");
+	terminal_writeint(cpuinfo->model_info.family,16);
+	terminal_writestring("\n");
+		
 	init_echfs();
 	echfs_setup_fs_map();
 	terminal_writestring("Successfully initialized ECHFS!\n");
