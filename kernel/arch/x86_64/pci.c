@@ -132,6 +132,14 @@ void init_pci_bus(uint8_t bus) {
 			pci_device_t *device = kmalloc_p(sizeof(pci_device_t));
 			memset(device, 0, sizeof(pci_device_t));
 			device->functions[0] = function;
+			terminal_writestring("Found PCI device C: 0x");
+                        terminal_writeint(function->classCode,16);
+                        terminal_writestring(" V: 0x");
+                        terminal_writeint(function->vendorID,16);
+                        terminal_writestring(" D: 0x");
+                        terminal_writeint(function->deviceID,16);
+                        terminal_writestring("\n");
+
 			if (function->headerType & 1 << 7) {
 				for (int j = 1; j < 8; j++) {
 					pci_device_function_t *function2 = getFunction(bus, i, j);
@@ -142,6 +150,13 @@ void init_pci_bus(uint8_t bus) {
 										>> 8);
 						init_pci_bus(secondaryBusNumber);
 					}else{
+						terminal_writestring("Found PCI device C: 0x");
+						terminal_writeint(function2->classCode,16);
+						terminal_writestring(" V: 0x");
+						terminal_writeint(function2->vendorID,16);
+						terminal_writestring(" D: 0x");
+						terminal_writeint(function2->deviceID,16);
+						terminal_writestring("\n");
 						device->functions[j] = function2;
 					}
 				}

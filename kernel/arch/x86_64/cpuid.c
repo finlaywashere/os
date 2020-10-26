@@ -23,5 +23,6 @@ char* getCPUManufacturer(){
 cpu_info_t* getCPUInfo(){
 	cpuid_t* id = kmalloc_p(sizeof(cpuid_t));
         call_cpuid(1,&id);
-	return (cpu_info_t*)id;
+	cpu_info_t* info = (cpu_info_t*) id;
+	return info;
 }
