@@ -13,8 +13,9 @@ void init_processes(){
 	processes = kmalloc_p(sizeof(context_t)*10);
 	memset(processes,0,sizeof(context_t)*10);
 }
-int runningProcess = 0;
+int runningProcess = -1;
 registers_t* schedule(registers_t* regs){
+	save_process(regs);
 	if(processes[runningProcess].status == PROCESS_RUNNING){
 		processes[runningProcess].state = *regs;
         	processes[runningProcess].status = PROCESS_RUNNABLE;
@@ -43,6 +44,8 @@ void pause_process(){
 	processes[runningProcess].status = PROCESS_RUNNABLE;
 }
 void save_process(registers_t *regs){
+	if(runningProcess == -1)
+		return;
 	processes[runningProcess].state = *regs;
 }
 
@@ -90,7 +93,6 @@ context_t* create_process(char* path){
 		panic("No processes left!");
 	processes[currProcess] = *context;
 	currProcess++;
-	runningProcess = currProcess-1;
 	return context;
 }
 

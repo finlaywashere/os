@@ -1,18 +1,19 @@
 #include <libc/syscall.h>
 #include <libc/string.h>
+#include <kernel/syscall.h>
 
 void print(char* message){
 	size_t len = strlen(message);
-	uint16_t newArray[len];
-	for(uint64_t i = 0; i < len; i++){
-		char c = message[i];
-		newArray[i] = (uint16_t) c;
+	uint16_t buf[len];
+	for(int i = 0; i < len; i++){
+		buf[i] = message[i];
 	}
-	write(0,(uint64_t)&newArray,len);
+	syscall_asm(WRITE,(uint64_t)&buf,len,0);
 }
 void exit(){
-	exit_asm();
+	syscall_asm(EXIT,1,0,0);
 }
 void exec(char* file){
-	exec_asm((uint64_t) file);
+	size_t len = strlen(file);
+	syscall_asm(EXEC,(uint64_t) file,len,0);
 }

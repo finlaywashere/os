@@ -1,9 +1,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-extern void write(uint64_t,uint64_t,uint64_t);
-extern void exit_asm();
-extern void exec_asm(uint64_t);
+extern uint64_t syscall_asm(uint64_t rax,uint64_t rbx,uint64_t rcx, uint64_t rdx);
 
 void print(char* message);
 void exit();
