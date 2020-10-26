@@ -10,6 +10,11 @@ void print(char* message){
 	}
 	syscall_asm(WRITE,(uint64_t)&buf,len,0);
 }
+uint16_t readCharacter(){
+	uint16_t buf[1];
+	syscall_asm(READ,(uint64_t)&buf,1,0);
+	return buf[0];
+}
 void exit(){
 	syscall_asm(EXIT,1,0,0);
 }

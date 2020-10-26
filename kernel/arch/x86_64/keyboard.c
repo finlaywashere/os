@@ -15,6 +15,20 @@ uint8_t alt = 0;
 
 uint16_t buffer[32];
 
+uint16_t getCurrKey(){
+	return buffer[32];
+}
+uint16_t nextKey(){
+	//asm volatile ("cli");
+	for(int i = 1; i < 32; i++){
+		buffer[i-1] = buffer[i];
+	}
+	buffer[31] = 0x0;
+	//asm volatile ("sti");
+}
+uint8_t toASCII(uint16_t key){
+	return key & 0xFF;
+}
 uint16_t getKeyFromCode(uint8_t key1, uint8_t key2) {
 	if (key1 != 0xE0) {
 		if (key1 < 0x80) {
@@ -79,7 +93,7 @@ void keyboard_callback(registers_t regs) {
 			key &= 0xFF00;
 			key |= asciiKey;
 		}
-		terminal_putchar(key);
+		//terminal_putchar(key);
 
 		int found = 0;
 		for (int i = 0; i < 32; i++) {

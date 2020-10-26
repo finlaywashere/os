@@ -30,6 +30,38 @@ registers_t exec_syscall(registers_t regs){
 		}
 		regs.rax = 1;
 		return regs;
+	}else if(code == READ){
+		uint16_t* buf = (uint16_t*) regs.rbx;
+		uint64_t descriptor = regs.rdx;
+		uint64_t len = regs.rcx;
+		uint64_t start = (uint64_t) buf;
+                uint64_t end = ((uint64_t)buf) + len;
+                if(start >= 0xffff800000000000 || end >= 0xffff800000000000 || start < 0 || end < 0){
+                        regs.rax = 1;
+                        return regs;
+                }
+		if(descriptor == 0){
+			// Any length above 32 is invalid
+			if(len > 32 || len < 0){
+				regs.rax = 2;
+				return regs;
+			}
+			int curr = 0;
+			while(1){
+				for(int i = curr; i < len; i++){
+					uint16_t key = getCurrKey();
+					if(key == 0x0)
+						break;
+					nextKey();
+					buf[i] = key;
+					curr = i;
+				}
+				if(curr == 31){
+					regs.rax = 0;
+					return regs;
+				}
+			}
+		}
 	}else if(code == EXIT){
 		// Exit
 		regs = *process_exit(&regs);

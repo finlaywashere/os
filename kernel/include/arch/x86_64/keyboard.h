@@ -103,3 +103,7 @@ uint16_t specialScancodes1[] = {
 #define MUME_VD 30
 #define MUME_VU 31
 #define MUME_WWW_HOME 32
+
+uint16_t getCurrKey();
+uint16_t nextKey();
+uint8_t toASCII(uint16_t);
