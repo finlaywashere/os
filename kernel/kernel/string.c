@@ -38,10 +38,10 @@ void memcpy(char* buf1, char* buf2, size_t len){
 	for(size_t i = 0; i < len; i++)
 		buf2[i] = buf1[i];
 }
-unsigned iabs(int input) {
+uint64_t iabs(uint64_t input) {
     if (input >= 0)
-        return (unsigned)input;
-    return (4294967295 - (unsigned)input)+1U;
+        return (uint64_t)input;
+    return (0xFFFFFFFFFFFFFFFF - (unsigned)input)+1U;
 }
 char *itoa_internal(char *buffer, uint64_t len, uint64_t input, uint64_t base) {
     static const char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
