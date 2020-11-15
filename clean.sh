@@ -8,4 +8,5 @@ done
  
 rm -rf sysroot
 rm -rf isodir
-rm -rf os.iso
+rm -f os.iso
+rm -f disk.iso
